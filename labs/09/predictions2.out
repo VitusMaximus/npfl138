@@ -1,0 +1,17 @@
+Epoch=1/17 142.0s loss=2.3112 edit_distance=1.0350 dev_loss=2.1460 dev_edit_distance=1.0000
+Epoch=2/17 111.8s loss=1.9994 edit_distance=1.0000 dev_loss=1.5222 dev_edit_distance=1.0000
+Epoch=3/17 111.7s loss=1.9392 edit_distance=1.0000 dev_loss=1.9013 dev_edit_distance=1.0000
+Epoch=4/17 113.1s loss=1.7474 edit_distance=0.9999 dev_loss=1.1106 dev_edit_distance=0.9850
+Epoch=5/17 113.6s loss=1.9780 edit_distance=0.9986 dev_loss=1.2546 dev_edit_distance=1.0000
+Epoch=6/17 112.2s loss=1.8853 edit_distance=0.9996 dev_loss=1.9391 dev_edit_distance=0.9996
+Epoch=7/17 116.1s loss=1.6710 edit_distance=0.9996 dev_loss=0.7732 dev_edit_distance=0.9519
+Epoch=8/17 135.4s loss=1.5050 edit_distance=0.9876 dev_loss=1.2158 dev_edit_distance=0.8884
+Epoch=9/17 211.8s loss=1.3875 edit_distance=0.9271 dev_loss=1.3736 dev_edit_distance=0.7858
+Epoch=10/17 358.9s loss=1.2929 edit_distance=0.8040 dev_loss=1.3170 dev_edit_distance=0.6891
+Epoch=11/17 490.2s loss=1.2058 edit_distance=0.6900 dev_loss=0.6288 dev_edit_distance=0.6145
+Epoch=12/17 598.8s loss=1.1253 edit_distance=0.6027 dev_loss=0.8559 dev_edit_distance=0.6112
+Epoch=13/17 676.5s loss=1.0599 edit_distance=0.5450 dev_loss=1.5036 dev_edit_distance=0.5308
+Epoch=14/17 717.7s loss=1.0207 edit_distance=0.5143 dev_loss=1.0080 dev_edit_distance=0.5035
+Epoch=15/17 735.1s loss=0.9756 edit_distance=0.4906 dev_loss=0.7405 dev_edit_distance=0.5195
+Epoch=16/17 745.9s loss=0.9507 edit_distance=0.4772 dev_loss=0.9056 dev_edit_distance=0.4900
+Epoch=17/17 756.8s loss=0.9360 edit_distance=0.4672 dev_loss=1.2823 dev_edit_distance=0.4825

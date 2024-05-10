@@ -14,10 +14,21 @@ from common_voice_cs import CommonVoiceCs
 # TODO: Define reasonable defaults and optionally more parameters.
 # Also, you can set the number of threads to 0 to use all your CPU cores.
 parser = argparse.ArgumentParser()
+<<<<<<< HEAD
 parser.add_argument("--batch_size", default=..., type=int, help="Batch size.")
 parser.add_argument("--epochs", default=..., type=int, help="Number of epochs.")
 parser.add_argument("--seed", default=42, type=int, help="Random seed.")
 parser.add_argument("--threads", default=1, type=int, help="Maximum number of threads to use.")
+=======
+parser.add_argument("--batch_size", default=16, type=int, help="Batch size.")
+parser.add_argument("--epochs", default=17, type=int, help="Number of epochs.")
+parser.add_argument("--seed", default=74, type=int, help="Random seed.")
+parser.add_argument("--threads", default=0, type=int, help="Maximum number of threads to use.")
+parser.add_argument("--rnn_dim", default=512, type=int, help="Dimension of RNN")
+
+PAD = 0
+BLANK_SYMBOL = 1
+>>>>>>> 4e46c82 (09)
 
 
 class TrainableModule(torch.nn.Module):
