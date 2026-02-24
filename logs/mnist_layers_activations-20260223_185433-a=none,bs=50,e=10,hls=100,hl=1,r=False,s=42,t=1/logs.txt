@@ -1,0 +1,10 @@
+Epoch 1/10 2.4s loss=0.3791 accuracy=0.8922 dev:loss=0.2400 dev:accuracy=0.9290
+Epoch 2/10 2.7s loss=0.3011 accuracy=0.9155 dev:loss=0.2275 dev:accuracy=0.9360
+Epoch 3/10 2.5s loss=0.2879 accuracy=0.9193 dev:loss=0.2344 dev:accuracy=0.9344
+Epoch 4/10 2.6s loss=0.2822 accuracy=0.9211 dev:loss=0.2243 dev:accuracy=0.9376
+Epoch 5/10 2.6s loss=0.2775 accuracy=0.9225 dev:loss=0.2217 dev:accuracy=0.9396
+Epoch 6/10 2.6s loss=0.2730 accuracy=0.9235 dev:loss=0.2231 dev:accuracy=0.9380
+Epoch 7/10 2.5s loss=0.2703 accuracy=0.9236 dev:loss=0.2281 dev:accuracy=0.9396
+Epoch 8/10 2.5s loss=0.2687 accuracy=0.9243 dev:loss=0.2350 dev:accuracy=0.9374
+Epoch 9/10 2.6s loss=0.2648 accuracy=0.9258 dev:loss=0.2289 dev:accuracy=0.9378
+Epoch 10/10 2.6s loss=0.2645 accuracy=0.9247 dev:loss=0.2264 dev:accuracy=0.9378

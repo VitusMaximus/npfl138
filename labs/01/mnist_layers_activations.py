@@ -49,7 +49,22 @@ def main(args: argparse.Namespace) -> dict[str, float]:
     #   `torch.nn.Linear()`, each with `args.hidden_layer_size` neurons and followed by
     #   a specified `args.activation`, allowing "none", "relu", "tanh", "sigmoid";
     # - finally, add an output fully connected layer with `MNIST.LABELS` units.
-    ...
+    model.add_module("flatten", torch.nn.Flatten())
+
+    for i in range(args.hidden_layers):
+        if i == 0:
+            model.add_module(f"hidden_{i}", torch.nn.Linear(MNIST.C * MNIST.H * MNIST.W, args.hidden_layer_size))
+        else:
+            model.add_module(f"hidden_{i}", torch.nn.Linear(args.hidden_layer_size, args.hidden_layer_size))
+
+        if args.activation == "relu":
+            model.add_module(f"relu_{i}", torch.nn.ReLU())
+        elif args.activation == "tanh":
+            model.add_module(f"tanh_{i}", torch.nn.Tanh())
+        elif args.activation == "sigmoid":
+            model.add_module(f"sigmoid_{i}", torch.nn.Sigmoid())
+    
+    model.add_module("output", torch.nn.Linear(args.hidden_layer_size if args.hidden_layers > 0 else MNIST.C * MNIST.H * MNIST.W, MNIST.LABELS))
 
     # Create the TrainableModule and configure it for training.
     model = npfl138.TrainableModule(model)

@@ -1,0 +1,12 @@
+Config epoch=0 batch_size=50 epochs=10 hidden_layer_size=100 seed=42 threads=1
+Epoch 1/10 3.1s loss=0.3178 accuracy=0.9104 dev:loss=0.1482 dev:accuracy=0.9566
+Epoch 2/10 2.6s loss=0.1502 accuracy=0.9560 dev:loss=0.1049 dev:accuracy=0.9720
+Epoch 3/10 2.7s loss=0.1048 accuracy=0.9692 dev:loss=0.0939 dev:accuracy=0.9720
+Epoch 4/10 2.7s loss=0.0812 accuracy=0.9757 dev:loss=0.0856 dev:accuracy=0.9760
+Epoch 5/10 2.7s loss=0.0627 accuracy=0.9811 dev:loss=0.0827 dev:accuracy=0.9786
+Epoch 6/10 2.7s loss=0.0516 accuracy=0.9846 dev:loss=0.0749 dev:accuracy=0.9794
+Epoch 7/10 2.8s loss=0.0420 accuracy=0.9869 dev:loss=0.0726 dev:accuracy=0.9796
+Epoch 8/10 2.8s loss=0.0331 accuracy=0.9903 dev:loss=0.0733 dev:accuracy=0.9800
+Epoch 9/10 2.7s loss=0.0275 accuracy=0.9918 dev:loss=0.0782 dev:accuracy=0.9782
+Epoch 10/10 2.8s loss=0.0240 accuracy=0.9930 dev:loss=0.0782 dev:accuracy=0.9810
+Evaluation 0.3s test:loss=0.0773 test:accuracy=0.9766
