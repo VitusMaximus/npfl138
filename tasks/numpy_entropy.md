@@ -4,7 +4,7 @@
 #### Tests: numpy_entropy_tests
 #### Examples: numpy_entropy_examples
 
-The goal of this exercise is to familiarize with Python, NumPy and ReCodEx
+The goal of this exercise is to familiarize yourself with Python, NumPy and the ReCodEx
 submission system. Start with the
 [numpy_entropy.py](https://github.com/ufal/npfl138/tree/master/labs/01/numpy_entropy.py).
 
@@ -38,12 +38,15 @@ Crossentropy: inf nats
 KL divergence: inf nats
 ```
 
-- The last three tests use data available only in ReCodEx. They are analogous
-  to the [numpy_entropy_data_3.txt](https://github.com/ufal/npfl138/tree/master/labs/01/numpy_entropy_data_3.txt)
-  [numpy_entropy_model_3.txt](https://github.com/ufal/npfl138/tree/master/labs/01/numpy_entropy_model_3.txt)
-  and [numpy_entropy_data_4.txt](https://github.com/ufal/npfl138/tree/master/labs/01/numpy_entropy_data_4.txt)
-  [numpy_entropy_model_4.txt](https://github.com/ufal/npfl138/tree/master/labs/01/numpy_entropy_model_4.txt),
-  but are generated with different random seeds.
+3. This test uses data available only in ReCodEx. They are analogous
+   to the [numpy_entropy_data_3.txt](https://github.com/ufal/npfl138/tree/master/labs/01/numpy_entropy_data_3.txt)
+   and [numpy_entropy_model_3.txt](https://github.com/ufal/npfl138/tree/master/labs/01/numpy_entropy_model_3.txt)
+   but are generated with a different random seed.
+
+4. This test uses data available only in ReCodEx. They are analogous
+   to the [numpy_entropy_data_4.txt](https://github.com/ufal/npfl138/tree/master/labs/01/numpy_entropy_data_4.txt)
+   and [numpy_entropy_model_4.txt](https://github.com/ufal/npfl138/tree/master/labs/01/numpy_entropy_model_4.txt)
+   but are generated with a different random seed.
 #### Tests End:
 #### Examples Start: numpy_entropy_examples
 _Note that your results may be slightly different, depending on your CPU type and whether you use a GPU._

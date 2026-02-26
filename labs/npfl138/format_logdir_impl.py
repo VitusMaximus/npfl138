@@ -56,16 +56,17 @@ def format_logdir(logdir_template: str, **kwargs: Any) -> str:
     if sum(len(k) + 1 + min(len(v), 5) + 1 for k, v in items) - 1 > 200:
         raise ValueError("Signature is too long to fit even with maximum truncation.")
 
-    limit = max(len(v) for k, v in items)
-    while sum(len(k) + 1 + min(len(v), limit) + 1 for k, v in items) - 1 > 200:  # guaranteed False when limit == 5
-        limit -= 1
-    items = [(k, v if len(v) <= limit else v[:limit // 2 - 1] + "..." + v[-limit // 2 + 2:]) for k, v in items]
+    if items:
+        limit = max(len(v) for k, v in items)
+        while sum(len(k) + 1 + min(len(v), limit) + 1 for k, v in items) - 1 > 200:  # guaranteed False when limit == 5
+            limit -= 1
+        items = [(k, v if len(v) <= limit else v[:limit // 2 - 1] + "..." + v[-limit // 2 + 2:]) for k, v in items]
     kwargs["config"] = ",".join(f"{k}={v}" for k, v in items)
 
     # Create {file} placeholder.
     current_frame = inspect.currentframe()
     if current_frame and current_frame.f_back:
-        kwargs["file"] = os.path.splitext(os.path.basename(current_frame.f_back.f_globals.get("__file__")))[0]
+        kwargs["file"] = os.path.splitext(os.path.basename(current_frame.f_back.f_globals.get("__file__", "")))[0]
     else:
         kwargs["file"] = ""
 
