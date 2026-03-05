@@ -57,8 +57,8 @@ def main(args: argparse.Namespace) -> dict[str, float]:
     # Wrap the model in the TrainableModule.
     model = npfl138.TrainableModule(model)
 
-    # TODO: Use the required `args.optimizer` (either `SGD` or `Adam`) with
-    # the given `args.learning_rate`.
+    # TODO: Use the required `args.optimizer` (either `SGD` or `Adam`) from `torch.optim`
+    # with the given `args.learning_rate`.
     
     
     if args.optimizer == "SGD":

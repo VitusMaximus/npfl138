@@ -28,7 +28,7 @@ class GymCartpoleDataset:
     Element = collections.namedtuple("Element", ["observation", "label"])
     """The type of a single dataset element."""
 
-    URL: str = "https://ufal.mff.cuni.cz/~straka/courses/npfl138/2526/datasets/"
+    URL: str = "https://ufal.mff.cuni.cz/~straka/courses/npfl138/2526/datasets"
 
     class Dataset(torch.utils.data.Dataset):
         def __init__(self, observations: np.ndarray, labels: np.ndarray) -> None:
@@ -60,9 +60,9 @@ class GymCartpoleDataset:
           dataset: The file name of the dataset to load.
         """
         if not os.path.exists(dataset):
-            print("Downloading {}...".format(dataset), file=sys.stderr)
-            urllib.request.urlretrieve("{}/{}".format(self.URL, dataset), filename="{}.tmp".format(dataset))
-            os.rename("{}.tmp".format(dataset), dataset)
+            print(f"Downloading {dataset}...", file=sys.stderr)
+            urllib.request.urlretrieve(f"{self.URL}/{dataset}", filename=f"{dataset}.tmp")
+            os.rename(f"{dataset}.tmp", dataset)
 
         data = np.loadtxt(dataset)
         self.train = self.Dataset(observations=data[:, :-1].astype(np.float32), labels=data[:, -1].astype(np.int64))
