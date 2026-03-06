@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# 964bdfc8-60b0-4398-b837-7c2520532d17
+# 4b50a6fb-a4a6-4b30-9879-0b671f941a72
+# f5419161-0138-4909-8252-ba9794a63e53
 import argparse
 
 import torch
@@ -27,7 +30,7 @@ class Dataset(npfl138.TransformedDataset):
         image = example["image"]  # a torch.Tensor with torch.uint8 values in [0, 255] range
         image = image.to(torch.float32) / 255  # image converted to float32 and rescaled to [0, 1]
         label = example["label"]  # a torch.Tensor with a single integer representing the label
-        return image, label  # return an (input, target) pair
+        return image, label  # return an (input, target) pair 
 
 
 def main(args: argparse.Namespace) -> dict[str, float]:
@@ -44,14 +47,25 @@ def main(args: argparse.Namespace) -> dict[str, float]:
     # TODO: Incorporate dropout to the model below. Namely, add a `torch.nn.Dropout`
     # layer with `args.dropout` rate after the `Flatten` layer and after each
     # `Linear` hidden layer (but not after the output `Linear` layer).
+    if args.dropout:
+        model = torch.nn.Sequential()
+        model.append(torch.nn.Flatten())
+        model.append(torch.nn.Dropout(args.dropout))
+        features = MNIST.C * MNIST.H * MNIST.W
+        for hidden_layer in args.hidden_layers:
+            model.append(torch.nn.Linear(features, features := hidden_layer))
+            model.append(torch.nn.Dropout(args.dropout))
+            model.append(torch.nn.ReLU())
+        model.append(torch.nn.Linear(features, features := MNIST.LABELS))
 
-    model = torch.nn.Sequential()
-    model.append(torch.nn.Flatten())
-    features = MNIST.C * MNIST.H * MNIST.W
-    for hidden_layer in args.hidden_layers:
-        model.append(torch.nn.Linear(features, features := hidden_layer))
-        model.append(torch.nn.ReLU())
-    model.append(torch.nn.Linear(features, features := MNIST.LABELS))
+    else:
+        model = torch.nn.Sequential()
+        model.append(torch.nn.Flatten())
+        features = MNIST.C * MNIST.H * MNIST.W
+        for hidden_layer in args.hidden_layers:
+            model.append(torch.nn.Linear(features, features := hidden_layer))
+            model.append(torch.nn.ReLU())
+        model.append(torch.nn.Linear(features, features := MNIST.LABELS))
 
     # Wrap the model in the TrainableModule.
     model = npfl138.TrainableModule(model)
@@ -71,12 +85,20 @@ def main(args: argparse.Namespace) -> dict[str, float]:
     #
     # We consider the bias parameters to be all parameters returned by
     # `model.named_parameters()` whose name contains the string "bias".
-    optimizer = ...
+    params = [
+        {"params": [(name,params)  for name,params in model.named_parameters() if "bias" not in name],
+        "weight_decay": args.weight_decay
+        },
+        {"params": [(name,params)  for name,params in model.named_parameters() if "bias" in name],
+        "weight_decay": 0
+        }
+    ]
+    optimizer = torch.optim.AdamW(params)
 
     # TODO: Implement label smoothing with the given `args.label_smoothing` strength.
     # The easiest approach by far is to use a PyTorch cross-entropy loss function
     # that supports label smoothing.
-    loss = ...
+    loss = torch.nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
 
     model.configure(
         optimizer=optimizer,
