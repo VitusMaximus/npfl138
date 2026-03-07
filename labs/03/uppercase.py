@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# 964bdfc8-60b0-4398-b837-7c2520532d17
+# 4b50a6fb-a4a6-4b30-9879-0b671f941a72
+# f5419161-0138-4909-8252-ba9794a63e53
 import argparse
 import os
 
@@ -13,13 +16,18 @@ from npfl138.datasets.uppercase_data import UppercaseData
 # `alphabet_size`, `batch_size`, `epochs`, and `window`.
 # Also, you can set the number of threads to 0 to use all your CPU cores.
 parser = argparse.ArgumentParser()
-parser.add_argument("--alphabet_size", default=..., type=int, help="If given, use this many most frequent chars.")
-parser.add_argument("--batch_size", default=..., type=int, help="Batch size.")
-parser.add_argument("--epochs", default=..., type=int, help="Number of epochs.")
+parser.add_argument("--alphabet_size", default=35, type=int, help="If given, use this many most frequent chars.")
+parser.add_argument("--batch_size", default=64, type=int, help="Batch size.")
+parser.add_argument("--epochs", default=15, type=int, help="Number of epochs.")
 parser.add_argument("--seed", default=42, type=int, help="Random seed.")
-parser.add_argument("--threads", default=1, type=int, help="Maximum number of threads to use.")
-parser.add_argument("--window", default=..., type=int, help="Window size to use.")
-
+parser.add_argument("--threads", default=16, type=int, help="Maximum number of threads to use.")
+parser.add_argument("--window", default=4, type=int, help="Window size to use.")
+parser.add_argument("--hidden_size", default=200, type=int, help="Embedding size to use.")
+parser.add_argument("--hidden_layers", default=2, type=int, help="Number of hidden layers.")
+parser.add_argument("--dropout", default=0.3, type=float, help="Dropout rate.")
+parser.add_argument("--weight_decay", default=0.001, type=float, help="Weight decay rate.")
+parser.add_argument("--label_smoothing", default=0.1, type=float, help="Label smoothing rate.")
+parser.add_argument("--embedding_size", default=100, type=int, help="Embedding size to use.")
 
 class Dataset(torch.utils.data.Dataset):
     # A dataset must always implement at least `__len__` and `__getitem__`.
@@ -31,14 +39,14 @@ class Dataset(torch.utils.data.Dataset):
         return len(self.windows)
 
     def __getitem__(self, index):
-        return self.windows[index], self.labels[index]
+        return self.windows[index], torch.as_tensor(self.labels[index], dtype=torch.float32)
 
     # When a dataset implements `__getitems__`, this method is used to generate whole batches in a single call.
     # However, `__getitems__` is expected to return a list of items that are later collated together.
     # For maximum speedup, we already return a whole batch from `__getitems__` and implement a trivial `collate`.
     def __getitems__(self, indices):
         indices = torch.as_tensor(indices)
-        return self.windows[indices], self.labels[indices]
+        return self.windows[indices], torch.as_tensor(self.labels[indices], dtype=torch.float32)
 
     @staticmethod
     def collate(batch):
@@ -61,11 +69,28 @@ class Model(npfl138.TrainableModule):
         # - Alternatively, you can experiment with `torch.nn.Embedding`s (an
         #   efficient implementation of one-hot encoding followed by a Dense layer)
         #   and flattening afterwards, or suitably using `torch.nn.EmbeddingBag`.
-        ...
+        self.E = torch.nn.Embedding(args.alphabet_size,args.embedding_size)
+        self.H = torch.nn.ModuleList(
+            [
+                torch.nn.Linear(args.embedding_size * (args.window*2+1),args.hidden_size),
+                torch.nn.Dropout(args.dropout),
+                torch.nn.ReLU()
+            ]
+        )
+        for _ in range(args.hidden_layers-1):
+            self.H.append(torch.nn.Linear(args.hidden_size,args.hidden_size))
+            self.H.append(torch.nn.Dropout(args.dropout))
+            self.H.append(torch.nn.ReLU())
+        
+        self.O = torch.nn.Linear(args.hidden_size,1)
 
     def forward(self, windows: torch.Tensor) -> torch.Tensor:
         # TODO: Implement the forward pass.
-        ...
+        hid = self.E(windows)
+        hid = hid.reshape(hid.shape[0],-1)
+        for layer in self.H:
+            hid = layer(hid)
+        return self.O(hid).squeeze(-1)
 
 
 def main(args: argparse.Namespace) -> None:
@@ -80,13 +105,42 @@ def main(args: argparse.Namespace) -> None:
     uppercase_data = UppercaseData(args.window, args.alphabet_size)
 
     train = torch.utils.data.DataLoader(
-        Dataset(uppercase_data.train), args.batch_size, collate_fn=Dataset.collate, shuffle=True)
-    dev = torch.utils.data.DataLoader(Dataset(uppercase_data.dev), args.batch_size, collate_fn=Dataset.collate)
-    test = torch.utils.data.DataLoader(Dataset(uppercase_data.test), args.batch_size, collate_fn=Dataset.collate)
+        Dataset(uppercase_data.train), args.batch_size, collate_fn=Dataset.collate, shuffle=True, pin_memory=True)
+    dev = torch.utils.data.DataLoader(
+        Dataset(uppercase_data.dev), args.batch_size, collate_fn=Dataset.collate, pin_memory=True)
+    test = torch.utils.data.DataLoader(
+        Dataset(uppercase_data.test), args.batch_size, collate_fn=Dataset.collate, pin_memory=True)
 
     # TODO: Implement a suitable model, optionally including regularization, select
     # good hyperparameters, and train the model.
-    model = ...
+    model = Model(args)
+    params =[
+        {
+            "params": [(name,params)  for name,params in model.named_parameters() if "bias" not in name],
+            "weight_decay": args.weight_decay
+        },
+        {
+            "params": [(name,params)  for name,params in model.named_parameters() if "bias" in name],
+            "weight_decay": 0
+        }
+    ] 
+    optim = torch.optim.AdamW(
+        params
+        )
+    lr = torch.optim.lr_scheduler.CosineAnnealingLR(optim, T_max=len(train)*args.epochs,eta_min=1e-5)
+    loss = torch.nn.BCEWithLogitsLoss()
+    metrics = {"accuracy": torchmetrics.Accuracy("binary")}
+    
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model.configure(
+        optimizer=optim,
+        scheduler=lr,
+        loss=loss, 
+        metrics=metrics,
+        logdir=args.logdir,
+        device=device
+        )
+    model.fit(train, dev=dev, epochs=args.epochs, log_graph=True)
 
     # TODO: Generate correctly capitalized test set and write the result to `predictions_file`,
     # which is by default `uppercase_test.txt` in the `args.logdir` directory).
@@ -98,7 +152,11 @@ def main(args: argparse.Namespace) -> None:
 
         # Now you need to utilize the network predictions and the unannotated test data (lowercased text)
         # available in `uppercase_data.test.text` to produce capitalized text and print it to the `predictions_file`.
-        ...
+        for p,t in zip(predictions,uppercase_data.test.text):
+            if torch.sigmoid(p) > 0.5:
+                predictions_file.write(t.upper())
+            else:
+                predictions_file.write(t)
 
 
 if __name__ == "__main__":
