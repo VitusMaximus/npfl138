@@ -65,7 +65,7 @@ def main(args: argparse.Namespace) -> tuple[float, float, float]:
     # the resulting crossentropy should be `np.inf`.
     crossentropy = - np.sum(array_data * np.log(array_model))
 
-    # TODO: Compute KL-divergence D_KL(data distribution, model_distribution),
+    # TODO: Compute KL-divergence D_KL(data distribution, model distribution),
     # again using `np.inf` when needed.
     kl_divergence = crossentropy -  entropy
     

@@ -33,7 +33,7 @@ class Model(torch.nn.Module):
 
         self._W1 = torch.nn.Parameter(
             torch.randn(MNIST.C * MNIST.H * MNIST.W, args.hidden_layer_size) * 0.1,
-            requires_grad=True,  # This is the default.
+            requires_grad=True,  # this is the default
         )
         self._b1 = torch.nn.Parameter(torch.zeros(args.hidden_layer_size))
 
@@ -136,7 +136,7 @@ class Model(torch.nn.Module):
     def evaluate(self, dataset: MNIST.Dataset) -> float:
         self.eval()
         with torch.no_grad():
-            # Compute the accuracy of the model prediction
+            # Compute the accuracy of the model prediction.
             correct = 0
             for batch in dataset.batches(self._args.batch_size):
                 # TODO: Compute the logits of the batch images as in the training,
@@ -147,7 +147,7 @@ class Model(torch.nn.Module):
                 _, _, logits = self(images)
 
                 # TODO(sgd_backpropagation): Evaluate how many batch examples were predicted
-                # correctly and increase `correct` variable accordingly, assuming
+                # correctly and increase the `correct` variable accordingly, assuming
                 # the model predicts the class with the highest logit/probability.
                 correct += torch.sum(torch.argmax(logits, dim=1) == labels).item()
 
@@ -162,12 +162,12 @@ def main(args: argparse.Namespace) -> tuple[float, float]:
     # Load raw data.
     mnist = MNIST()
 
-    # Create the TensorBoard writer
+    # Create the TensorBoard writer.
     writer = torch.utils.tensorboard.SummaryWriter(
         npfl138.format_logdir("logs/{file-}{timestamp}{-config}", **vars(args))
     )
 
-    # Create the model
+    # Create the model.
     model = Model(args)
 
     # Try using an accelerator if available.
@@ -196,6 +196,7 @@ def main(args: argparse.Namespace) -> tuple[float, float]:
     test_accuracy = model.evaluate(mnist.test)
     print(f"Test accuracy after epoch {epoch + 1} is {100 * test_accuracy:.2f}", flush=True)
     writer.add_scalar("test/accuracy", 100 * test_accuracy, epoch + 1)
+    writer.close()
 
     # Return dev and test accuracies for ReCodEx to validate.
     return dev_accuracy, test_accuracy

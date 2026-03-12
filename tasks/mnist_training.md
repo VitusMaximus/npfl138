@@ -4,7 +4,7 @@
 #### Tests: mnist_training_tests
 #### Examples: mnist_training_examples
 
-This exercise should teach you using different optimizers, learning rates,
+This exercise should teach you to use different optimizers, learning rates,
 and learning rate decays from [torch.optim](https://docs.pytorch.org/docs/stable/optim.html). Your goal is to modify the
 [mnist_training.py](https://github.com/ufal/npfl138/tree/master/labs/02/mnist_training.py)
 template and implement the following:
@@ -13,8 +13,8 @@ template and implement the following:
 - Using specified learning rate for the optimizer.
 - Optionally use a given learning rate schedule. The schedule can be either
   `linear`, `exponential`, or `cosine`. If a schedule is specified, you also
-  get a final learning rate, and the learning rate should be gradually decreased
-  during training to reach the final learning rate just after the training
+  get a final learning rate, and you should gradually decrease the learning rate
+  during the training to reach the final learning rate just after the training
   (i.e., the first update after the training would use exactly the final learning rate).
 
 #### Tests Start: mnist_training_tests
@@ -42,13 +42,13 @@ Epoch 1/1 1.9s loss=0.2982 accuracy=0.9153 dev:loss=0.1324 dev:accuracy=0.9640
 
 5. `python3 mnist_training.py --recodex --epochs=1 --optimizer=Adam --learning_rate=0.01`
 ```
-Epoch 1/1 2.0s loss=0.2313 accuracy=0.9296 dev:loss=0.1416 dev:accuracy=0.9606
+Epoch 1/1 2.0s loss=0.2293 accuracy=0.9298 dev:loss=0.1437 dev:accuracy=0.9598
 ```
 
 6. `python3 mnist_training.py --recodex --epochs=2 --optimizer=Adam --learning_rate=0.01 --decay=linear --learning_rate_final=0.0001`
 ```
-Epoch 1/2 2.1s lr=0.0050 loss=0.2106 accuracy=0.9354 dev:loss=0.1086 dev:accuracy=0.9702
-Epoch 2/2 2.3s lr=1.00e-04 loss=0.0749 accuracy=0.9769 dev:loss=0.0732 dev:accuracy=0.9798
+Epoch 1/2 2.1s lr=0.0050 loss=0.2097 accuracy=0.9365 dev:loss=0.1113 dev:accuracy=0.9688
+Epoch 2/2 2.3s lr=1.00e-04 loss=0.0752 accuracy=0.9772 dev:loss=0.0752 dev:accuracy=0.9800
 Next learning rate to be used: 0.0001
 ```
 
@@ -61,8 +61,8 @@ Next learning rate to be used: 0.001
 
 8. `python3 mnist_training.py --recodex --epochs=2 --optimizer=Adam --learning_rate=0.01 --decay=cosine --learning_rate_final=0.0001`
 ```
-Epoch 1/2 2.1s lr=0.0050 loss=0.2172 accuracy=0.9337 dev:loss=0.1133 dev:accuracy=0.9680
-Epoch 2/2 2.4s lr=1.00e-04 loss=0.0732 accuracy=0.9767 dev:loss=0.0776 dev:accuracy=0.9800
+Epoch 1/2 2.1s lr=0.0050 loss=0.2170 accuracy=0.9337 dev:loss=0.1177 dev:accuracy=0.9662
+Epoch 2/2 2.4s lr=1.00e-04 loss=0.0731 accuracy=0.9772 dev:loss=0.0788 dev:accuracy=0.9786
 Next learning rate to be used: 0.0001
 ```
 #### Tests End:

@@ -33,7 +33,7 @@ class Model(torch.nn.Module):
 
         self._W1 = torch.nn.Parameter(
             torch.randn(MNIST.C * MNIST.H * MNIST.W, args.hidden_layer_size) * 0.1,
-            requires_grad=True,  # This is the default.
+            requires_grad=True,  # this is the default
         )
         self._b1 = torch.nn.Parameter(torch.zeros(args.hidden_layer_size))
 
@@ -90,12 +90,13 @@ class Model(torch.nn.Module):
             # TODO: Compute the probabilities of the batch images using `torch.softmax`.
             probabilities = torch.softmax(logits, dim=1)
 
-            # TODO: Manually compute the loss (without `torch.nn.functional.cross_entropy`) by
-            # - For every batch example, the loss is the categorical crossentropy of the
-            #   predicted probabilities and the gold label. To compute the crossentropy, you can
+            # TODO: Manually compute the loss (without `torch.nn.functional.cross_entropy`)
+            # as follows:
+            # - For every batch example, the loss is the categorical cross-entropy of the
+            #   predicted probabilities and the gold label. To compute the cross-entropy, you can
             #   - either use `torch.nn.functional.one_hot` to obtain one-hot encoded gold labels
-            #     and then compute the crossentropy from the definition, or
-            #   - you can start by obtaining directly the model probabilities of the gold labels
+            #     and then compute the cross-entropy from the definition, or
+            #   - start by obtaining directly the model probabilities of the gold labels
             #     by suitably indexing the predicted probabilities by the gold labels.
             #   Note that it might be necessary to convert the labels from bytes to `torch.int64`.
             # - Finally, compute the average across the batch examples.
@@ -103,10 +104,10 @@ class Model(torch.nn.Module):
             loss = -torch.log(gold_probabilities).mean()
 
             # We create a list of all parameters. Note that a `torch.nn.Module` automatically
-            # tracks owned parameters, so we could also use `list(self.parameters())`.
+            # tracks its parameters, so we could also use `list(self.parameters())`.
             parameters = [self._W1, self._b1, self._W2, self._b2]
 
-            # TODO: Compute the gradient of the loss with respect to parameters using
+            # TODO: Compute the gradient of the loss with respect to the parameters using
             # the backpropagation algorithm, by
             # - first resetting the gradients of all parameters to zero with `self.zero_grad()`,
             # - then calling `loss.backward()`.
@@ -124,7 +125,7 @@ class Model(torch.nn.Module):
     def evaluate(self, dataset: MNIST.Dataset) -> float:
         self.eval()
         with torch.no_grad():
-            # Compute the accuracy of the model prediction
+            # Compute the accuracy of the model prediction.
             correct = 0
             for batch in dataset.batches(self._args.batch_size):
                 # TODO: Compute the logits of the batch images as in the training,
@@ -135,7 +136,7 @@ class Model(torch.nn.Module):
                 logits = self(images)
 
                 # TODO: Evaluate how many batch examples were predicted
-                # correctly and increase `correct` variable accordingly, assuming
+                # correctly and increase the `correct` variable accordingly, assuming
                 # the model predicts the class with the highest logit/probability.
                 correct += torch.sum(torch.argmax(logits, dim=1) == labels).item()
 
@@ -150,12 +151,12 @@ def main(args: argparse.Namespace) -> tuple[float, float]:
     # Load raw data.
     mnist = MNIST()
 
-    # Create the TensorBoard writer
+    # Create the TensorBoard writer.
     writer = torch.utils.tensorboard.SummaryWriter(
         npfl138.format_logdir("logs/{file-}{timestamp}{-config}", **vars(args))
     )
 
-    # Create the model
+    # Create the model.
     model = Model(args)
 
     # Try using an accelerator if available.
@@ -184,6 +185,7 @@ def main(args: argparse.Namespace) -> tuple[float, float]:
     test_accuracy = model.evaluate(mnist.test)
     print(f"Test accuracy after epoch {epoch + 1} is {100 * test_accuracy:.2f}", flush=True)
     writer.add_scalar("test/accuracy", 100 * test_accuracy, epoch + 1)
+    writer.close()
 
     # Return dev and test accuracies for ReCodEx to validate.
     return dev_accuracy, test_accuracy
