@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+#f5419161-0138-4909-8252-ba9794a63e53
+#4b50a6fb-a4a6-4b30-9879-0b671f941a72
+#964bdfc8-60b0-4398-b837-7c2520532d17
 import argparse
 
 import torch
@@ -27,6 +30,35 @@ class Dataset(npfl138.TransformedDataset):
         label = example["label"]  # a torch.Tensor with a single integer representing the label
         return image, label  # return an (input, target) pair
 
+"""
+`npfl138.TrainableModule` subclass that gets several models to
+            ensemble during its constructions, and in `forward` it runs them on the given
+            batch and averages the predicted distributions. 
+"""
+class EnsembleModule(npfl138.TrainableModule):
+    def __init__(self, models_to_ensemble):
+        super().__init__()
+        # Stores a list of models in ModuleList so PyTorch can register them as submodels
+        self.models = torch.nn.ModuleList(models_to_ensemble)
+    
+    def forward(self, inputs):
+        predicted_probabilities_from_models = []
+        for model in self.models:
+            # Pass the input tensor directly through the model to get raw logits
+            raw_logits = model(inputs)
+            # Convert logits to probabilities using softmax across the class dimension (dim=1 or -1)
+            # I need probability distribution instead of just raw logits that can differ in magnitude
+            prediction_prob = torch.nn.functional.softmax(raw_logits, dim=-1)
+
+            predicted_probabilities_from_models.append(prediction_prob)
+
+        # Stack the list of tensors into a single new tensor. 
+        stacked_probs = torch.stack(predicted_probabilities_from_models)
+        
+        # Average across the "models" dimension (dim=0) to get the final predictions.
+        averaged_probs = torch.mean(stacked_probs, dim=0)
+        
+        return averaged_probs
 
 def main(args: argparse.Namespace) -> tuple[list[float], list[float]]:
     # Set the random seed and the number of threads.
@@ -62,7 +94,7 @@ def main(args: argparse.Namespace) -> tuple[list[float], list[float]]:
     individual_accuracies, ensemble_accuracies = [], []
     for model in range(args.models):
         # TODO: Compute the accuracy on the dev set for the individual `models[model]`.
-        individual_accuracy = ...
+        individual_accuracy = models[model].evaluate(dev, log_results=False)["test:accuracy"]
 
         # TODO: Compute the accuracy on the dev set for the ensemble `models[0:model+1]`.
         #
@@ -76,7 +108,19 @@ def main(args: argparse.Namespace) -> tuple[list[float], list[float]]:
         #    on the `dev` dataloader (with `data_with_labels=True` to indicate the dataloader
         #    also contains the labels) and average the predicted distributions. To measure
         #    accuracy, either do it completely manually or use `torchmetrics.Accuracy`.
-        ensemble_accuracy = ...
+        
+        # I chose the 1) approach
+        ensemble_model = EnsembleModule(models[0:model+1])
+
+        # I have to tell the new "TrainableModule" what metric to use, what to measure...
+        ensemble_model.configure(
+            loss=torch.nn.CrossEntropyLoss(),
+            metrics={"accuracy": torchmetrics.Accuracy("multiclass", num_classes=MNIST.LABELS)}
+        )
+
+        # Evaluate the ensemble on dev set
+        # dataset_name="" so the returned dictionary key is just "accuracy"
+        ensemble_accuracy = ensemble_model.evaluate(dev, dataset_name="", log_results=False)["accuracy"]
 
         # Store the accuracies
         individual_accuracies.append(individual_accuracy)
