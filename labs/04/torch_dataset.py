@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# 964bdfc8-60b0-4398-b837-7c2520532d17
+# 4b50a6fb-a4a6-4b30-9879-0b671f941a72
+# f5419161-0138-4909-8252-ba9794a63e53
 import argparse
 
 import torch
@@ -31,7 +34,7 @@ class ManualDataset(torch.utils.data.Dataset):
 
     def __len__(self) -> int:
         # TODO: Return the length of the dataset; you can use `len` on the `self._dataset`.
-        ...
+        return len(self._dataset)
 
     def __getitem__(self, index: int) -> tuple[torch.Tensor, torch.Tensor]:
         # TODO: Start by indexing the `self._dataset` with `index` to get
@@ -40,7 +43,9 @@ class ManualDataset(torch.utils.data.Dataset):
         # - the original image needs to be converted to `torch.float32`, divided
         #   by 255, and passed through `self._augmentation_fn` if it is not `None`;
         # - the label is passed unchanged.
-        ...
+        img = self._dataset[index]["image"].to(dtype=torch.float32) / 255
+        upd = self._augmentation_fn(img) if self._augmentation_fn else img
+        return upd, self._dataset[index]["label"]
 
 
 # We can also make our life slightly easier by using the `npfl138.TransformedDataset`.
@@ -54,7 +59,9 @@ class TransformedDataset(npfl138.TransformedDataset):
         # dataset; you now only need to process it as in the `ManualDataset`, so
         # (1) convert to `torch.float32`, (2) divide by 255, and (3) apply the
         # `self._augmentation_fn` if it is not `None`; finally, return (image, label) pair.
-        ...
+        img = example["image"].to(dtype=torch.float32) / 255
+        upd = self._augmentation_fn(img) if self._augmentation_fn else img
+        return upd, example["label"]
 
     # Furthermore, we could also define a batch-wise transformation function
     #   def transform_batch(self, batch: tuple[torch.Tensor, torch.Tensor]) -> tuple[torch.Tensor, torch.Tensor]:
@@ -95,12 +102,16 @@ def main(args: argparse.Namespace) -> dict[str, float]:
         augmentation_fn = v2.Compose([
             # TODO: Add the following transformations:
             # - first create a `v2.RandomResize` that scales the image to
+            v2.RandomResize(28,36),
             #   random size in range [28, 36],
             # - then add `v2.Pad` that pads the image with 4 pixels on each side,
+            v2.Pad(4),
             # - then add `v2.RandomCrop` that chooses a random crop of size 32x32,
+            v2.RandomCrop(32),
             # - and finally add `v2.RandomHorizontalFlip` that uniformly
             #   randomly flips the image horizontally.
-            ...
+            v2.RandomHorizontalFlip()
+            
         ])
     else:
         augmentation_fn = None
