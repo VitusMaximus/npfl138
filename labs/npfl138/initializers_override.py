@@ -90,6 +90,12 @@ class KerasNormalizationLayers:
     all_norms = batch_norms + [
         torch.nn.LayerNorm,
         torch.nn.GroupNorm,
+        torch.nn.InstanceNorm1d,
+        torch.nn.InstanceNorm2d,
+        torch.nn.InstanceNorm3d,
+        torch.nn.LazyInstanceNorm1d,
+        torch.nn.LazyInstanceNorm2d,
+        torch.nn.LazyInstanceNorm3d,
     ]
 
 
@@ -111,32 +117,30 @@ def global_keras_initializers(
     Furthermore, for batch normalization layers, the default momentum value is changed
     from 0.1 to the Keras default of 0.01 (or any other value specified).
 
-    Finally, for batch normalization, layer normalization, and group normalization layers,
-    the default epsilon value is changed from 1e-5 to the Keras default of 1e-3
-    (or any other value specified).
+    Finally, for Torch batch normalization, layer normalization, group normalization, and
+    instance normalization layers, the default epsilon value is changed from 1e-5 to the Keras
+    default of 1e-3 (or any other value specified).
 
     Parameters:
      parameter_initialization: If True, override the default PyTorch initializers with Keras defaults.
-     batchnorm_momentum_override: If not None, override the default value of batch normalization
+     batchnorm_momentum_override: If not None, override the default value of Torch batch normalization
        momentum from 0.1 to this value.
      norm_layer_epsilon_override: If not None, override the default value of epsilon
-       for batch normalization, layer normalization, and group normalization layers from
-       1e-5 to this value.
+       for Torch batch normalization, layer normalization, group normalization, and instance normalization
+       layers from 1e-5 to this value.
     """
     if parameter_initialization:
         for class_, reset_parameters_method in KerasParameterInitialization.overrides.items():
             class_.reset_parameters = reset_parameters_method
 
     if batchnorm_momentum_override is not None:
-        for batch_norm_super in KerasNormalizationLayers.batch_norms:
-            for batch_norm in [batch_norm_super] + batch_norm_super.__subclasses__():
-                KerasNormalizationLayers.override_default_argument_value(
-                    batch_norm.__init__, "momentum", batchnorm_momentum_override
-                )
+        for batch_norm in KerasNormalizationLayers.batch_norms:
+            KerasNormalizationLayers.override_default_argument_value(
+                batch_norm.__init__, "momentum", batchnorm_momentum_override
+            )
 
     if norm_layer_epsilon_override is not None:
-        for norm_layer_super in KerasNormalizationLayers.all_norms:
-            for norm_layer in [norm_layer_super] + norm_layer_super.__subclasses__():
-                KerasNormalizationLayers.override_default_argument_value(
-                    norm_layer.__init__, "eps", norm_layer_epsilon_override
-                )
+        for norm_layer in KerasNormalizationLayers.all_norms:
+            KerasNormalizationLayers.override_default_argument_value(
+                norm_layer.__init__, "eps", norm_layer_epsilon_override
+            )

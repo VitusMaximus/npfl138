@@ -100,7 +100,7 @@ def main(args: argparse.Namespace) -> tuple[list[float], list[float]]:
         #
         # Generally you can choose one of the following approaches:
         # 1) Create a `npfl138.TrainableModule` subclass that gets several models to
-        #    ensemble during its constructions, and in `forward` it runs them on the given
+        #    ensemble during its construction, and in `forward` it runs them on the given
         #    batch and averages the predicted distributions. Then you can configure the
         #    ensemble with the required metric (and a loss) and use its `evaluate` method.
         # 2) Manually perform the averaging (using PyTorch or NumPy). In this case you do not
@@ -122,7 +122,7 @@ def main(args: argparse.Namespace) -> tuple[list[float], list[float]]:
         # dataset_name="" so the returned dictionary key is just "accuracy"
         ensemble_accuracy = ensemble_model.evaluate(dev, dataset_name="", log_results=False)["accuracy"]
 
-        # Store the accuracies
+        # Store the accuracies.
         individual_accuracies.append(individual_accuracy)
         ensemble_accuracies.append(ensemble_accuracy)
     return individual_accuracies, ensemble_accuracies

@@ -9,7 +9,6 @@ from typing import Any, Self
 import torch
 
 from .base_logger import BaseLogger
-from ..metric import Metric
 from ..type_aliases import AnyArray, DataFormat, TensorOrTensors
 
 
@@ -61,9 +60,9 @@ class WandBLogger(BaseLogger):
         self.run.log({label: self.wandb.Audio(audio, sample_rate=sample_rate)}, step=epoch)
         return self
 
-    def log_config(self, config: dict[str, Any], epoch: int) -> Self:
+    def log_config(self, config: dict[str, Any], epoch: int, sort_keys: bool = True) -> Self:
         self.run.config.update(dict(sorted(config.items())))
-        config_json = self.format_config_as_json(config)
+        config_json = self.format_config_as_json(config, sort_keys)
         self.run.log({"config": config_json} | self._maybe_as_html("config", config_json), step=epoch)
         return self
 
@@ -74,15 +73,8 @@ class WandBLogger(BaseLogger):
         # The logging in WandB has a lot of limitations. One is that all
         # children of the graph must be executed before the graph is logged;
         # however, metrics are usually not executed during the forward pass.
-        # We therefore try to exclude metrics from the logged graph.
-        watched_children = torch.nn.Module()
-        for name, child in graph.named_children():
-            if not any(isinstance(module, Metric) for module in child.modules()):
-                watched_children.add_module(name, child)
-        self.run.watch(watched_children, log=None, log_graph=True)
-        with self.graph_in_eval_mode(graph), torch.no_grad():
-            graph(*data) if isinstance(data, (list, tuple)) else graph(data)  # Run the graph to log it.
-        self.run.unwatch(watched_children)
+        # In the past we tried a few heuristics, but they were not robust,
+        # so now we do not try to log the graph to WandB at all.
         return self
 
     def log_image(self, label: str, image: AnyArray, epoch: int, data_format: DataFormat = "HWC") -> Self:
