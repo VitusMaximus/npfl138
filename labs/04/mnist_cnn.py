@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# 964bdfc8-60b0-4398-b837-7c2520532d17
+# 4b50a6fb-a4a6-4b30-9879-0b671f941a72
+# f5419161-0138-4909-8252-ba9794a63e53
 import argparse
 
 import torch
@@ -24,11 +27,79 @@ class Dataset(npfl138.TransformedDataset):
         image = example["image"]  # a torch.Tensor with torch.uint8 values in [0, 255] range
         image = image.to(torch.float32) / 255  # image converted to float32 and rescaled to [0, 1]
         label = example["label"]  # a torch.Tensor with a single integer representing the label
-        return image, label  # return an (input, target) pair
+        return image, label  # return an (input, target) pair¨
 
+
+def create_model(cnn:str, prev_channels:int = 1) -> torch.nn.ParameterList:
+    layers = cnn.split(",")
+    modules = torch.nn.ModuleList()
+    end = False
+    in_res = False
+    H = MNIST.H
+    for layer in layers:
+        if in_res and layer[-1] == "]":
+            end = True
+            layer = layer[:-1]
+
+        data = layer.split("-")
+        if data[0][0] == "R":
+            true_params = modules
+            modules = torch.nn.ModuleList()
+            in_res=True
+            data = data[1:]
+            data[0] = data[0][1:]
+        
+        match data[0][0]:
+            case "C":
+                ch = int(data[1])
+                batch_norm = data[0][-1] == "B"
+                pad = data[4]
+                if pad == "same":
+                    H = int(H/int(data[3]))
+                else:
+                    H = int((H- int(data[2])) / int(data[3])) + 1
+                modules.append(
+                    torch.nn.Conv2d(prev_channels, ch, int(data[2]), stride=int(data[3]), padding=pad, bias=not batch_norm)
+                )
+                prev_channels = ch
+                if batch_norm:
+                    modules.append(torch.nn.BatchNorm2d(ch))
+                modules.append(torch.nn.ReLU())
+            case "M":
+                modules.append(torch.nn.MaxPool2d(int(data[1]), stride=int(data[2])))
+                H = int((H - int(data[1])) / int(data[2])) + 1
+            case "F":
+                modules.append(torch.nn.Flatten())
+                prev_channels = H * H * prev_channels
+            case "H":
+                size = int(data[1])
+                modules.append(torch.nn.Linear(prev_channels, size))
+                modules.append(torch.nn.ReLU())
+                prev_channels = size
+            case "D":
+                modules.append(torch.nn.Dropout(float(data[1])))
+            
+        if end:
+            true_params.append(Residual(modules))
+            modules = true_params
+            in_res = False
+            end = False    
+    return modules, prev_channels
+
+class Residual(torch.nn.Module):
+    def __init__(self, layers: torch.nn.ModuleList) -> None:
+        super().__init__()
+        self.layers = layers
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        y = x
+        for layer in self.layers:
+            y = layer(y)
+        return x + y
 
 class Model(npfl138.TrainableModule):
     def __init__(self, args: argparse.Namespace) -> None:
+        super().__init__()
         # TODO: Add CNN layers specified by `args.cnn`, which contains
         # a comma-separated list of the following layers:
         # - `C-filters-kernel_size-stride-padding`: Add a convolutional layer with ReLU
@@ -64,7 +135,13 @@ class Model(npfl138.TrainableModule):
         # During this first call they also change themselves to the corresponding `torch.nn.Linear` etc.
 
         # TODO: Finally, add the final Linear output layer with `MNIST.LABELS` units.
-        ...
+        
+        layers, prev_channels = create_model(args.cnn)
+        self.layers = torch.nn.Sequential(*layers)
+        self.layers.append(torch.nn.Linear(prev_channels, MNIST.LABELS))
+    
+    def forward(self, images: torch.Tensor) -> torch.Tensor:
+        return self.layers(images)
 
 
 def main(args: argparse.Namespace) -> dict[str, float]:

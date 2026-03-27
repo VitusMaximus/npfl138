@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# 964bdfc8-60b0-4398-b837-7c2520532d17
+# 4b50a6fb-a4a6-4b30-9879-0b671f941a72
+# f5419161-0138-4909-8252-ba9794a63e53
 import argparse
 
 import numpy as np
@@ -17,7 +20,7 @@ parser.add_argument("--learning_rate", default=0.1, type=float, help="Learning r
 parser.add_argument("--recodex", default=False, action="store_true", help="Evaluation in ReCodEx.")
 parser.add_argument("--seed", default=42, type=int, help="Random seed.")
 parser.add_argument("--threads", default=1, type=int, help="Maximum number of threads to use.")
-parser.add_argument("--verify", default=False, action="store_true", help="Verify the implementation.")
+parser.add_argument("--verify", default=True, action="store_true", help="Verify the implementation.")
 # If you add more arguments, ReCodEx will keep them with your default values.
 
 
@@ -45,7 +48,22 @@ class Convolution:
         # manually iterate through the individual pixels, batch examples,
         # input filters, or output filters. However, you can manually
         # iterate through the kernel size.
-        output = ...
+        s = self._stride
+        k = self._kernel_size
+        X = inputs.shape[1]
+        Y = inputs.shape[2]
+        shape1 = int((X-k)/self._stride)+1
+        shape2 = int((Y-k)/self._stride)+1
+        output = torch.zeros((inputs.shape[0],shape1, shape2, self._filters))
+        
+
+        for x in range(k):
+            for y in range(k):
+                conv_out = inputs[:,x:X-k+x+1:s,y:Y-k+y+1:s,:] @ self._kernel[x,y]
+                output += conv_out
+        output += self._bias
+        output = torch.relu(output)
+                
 
         # If requested, verify that `output` contains a correct value.
         if self._verify:
@@ -65,7 +83,32 @@ class Convolution:
         # - the `inputs` layer,
         # - `self._kernel`,
         # - `self._bias`.
-        inputs_gradient, kernel_gradient, bias_gradient = ..., ..., ...
+        #drelu
+        outputs_gradient = outputs_gradient * (outputs > 0)
+        s = self._stride
+        k = self._kernel_size
+        X = inputs.shape[1]
+        Y = inputs.shape[2]
+        C = inputs.shape[3]
+        shape1 = int((X-k)/self._stride)+1
+        shape2 = int((Y-k)/self._stride)+1
+
+        kernel_gradient = torch.zeros_like(self._kernel)
+        bias_gradient = torch.zeros_like(self._bias)
+        inputs_gradient = torch.zeros_like(inputs)
+
+        #kernel
+        for x in range(k):
+            for y in range(k):
+                i_ = inputs[:,x:X-k+x+1:s,y:Y-k+y+1:s,:] 
+                kernel_gradient[x,y] = i_.reshape(-1, C).T @ outputs_gradient.reshape(-1, self._filters)
+        #bias
+        bias_gradient = torch.sum(outputs_gradient, dim=[0,1,2])
+        #inputs
+        for x in range(k):
+            for y in range(k):
+                grad = outputs_gradient @ self._kernel[x,y].T
+                inputs_gradient[:,x:X-k+x+1:s,y:Y-k+y+1:s,:] += grad
 
         # If requested, verify that the three computed gradients are correct.
         if self._verify:
