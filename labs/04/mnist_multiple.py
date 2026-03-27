@@ -79,8 +79,8 @@ class Model(npfl138.TrainableModule):
         # obtaining a 200-dimensional feature vector of each image.
         #
         # Using the computed representations, the model should produce four outputs:
-        # - first, compute _direct comparison_ whether the first digit is
-        #   greater than the second, by
+        # - first, compute _direct comparison_, a tensor of bools indicating whether
+        #   the first digit is greater than the second, by
         #   - concatenating the two 200-dimensional image feature vectors,
         h = torch.concat((l1,l2),dim=1)
 
@@ -92,9 +92,9 @@ class Model(npfl138.TrainableModule):
         #   a linear layer into 10 classes;
         # - then, classify the computed representation FV of the second image using
         #   the same layer (identical, i.e., with shared weights) into 10 classes;
-        # - finally, compute _indirect comparison_ whether the first digit
-        #   is greater than the second by comparing the most probable digits
-        #   predicted by the above two outputs.
+        # - finally, compute _indirect comparison_, a tensor of bools indicating
+        #   whether the first digit is greater than the second by comparing the
+        #   most probable digits predicted by the above two outputs.
         direct_comparison = o
         digit_1 = self.o_2(l1)
         digit_2 = self.o_2(l2)
@@ -109,9 +109,9 @@ class Model(npfl138.TrainableModule):
         direct_comparison_pred, digit_1_pred, digit_2_pred, indirect_comparison_pred = y_pred
         digit_1_true, digit_2_true = y_true
 
-        # TODO: Compute the required losses. Note that the `direct_comparison_pred` is
-        # really a probability (sigmoid was applied), while the `digit_1_pred` and
-        # `digit_2_pred` are logits of 10-class classification.
+        # TODO: Compute the required losses using their implementations from `torch.nn`.
+        # Note that the `direct_comparison_pred` is really a probability (sigmoid was applied),
+        # while the `digit_1_pred` and `digit_2_pred` are logits of 10-class classification.
         direct_comparison_loss = torch.nn.functional.binary_cross_entropy(direct_comparison_pred.flatten(),(digit_1_true > digit_2_true).to(torch.float32))
         t1 = torch.nn.functional.one_hot(digit_1_true.to(torch.long), 10).to(torch.float32)
         t2 = torch.nn.functional.one_hot(digit_2_true.to(torch.long), 10).to(torch.float32)
