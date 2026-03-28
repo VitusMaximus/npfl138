@@ -11,6 +11,8 @@ import npfl138
 npfl138.require_version("2526.6")
 from npfl138.datasets.svhn import SVHN
 
+from torchvision.ops import batched_nms
+
 # TODO: Define reasonable defaults and optionally more parameters.
 # Also, you can set the number of threads to 0 to use all your CPU cores.
 parser = argparse.ArgumentParser()
@@ -111,16 +113,19 @@ class Detector(torch.nn.Module):
                 steps += 1
             
             print("Evaluating ...")
-            accuracy = self.evaluate(dev_loader, svhn.dev, training=True)
+            accuracy_dev = self.evaluate(dev_loader, svhn.dev)
+            accuracy_train = self.evaluate(train_loader, svhn.train)
+
             
-            print(f"Epoch {epoch+1}/{self.args.epochs}, Loss: {total_loss/steps:.4f}, Dev Accuracy: {accuracy:.4f}")
+            print(f"Epoch {epoch+1}/{self.args.epochs}, Loss: {total_loss/steps:.4f}, Dev Accuracy: {accuracy_dev:.4f}, Train Accuracy: {accuracy_train:.4f}")
 
 
-    def evaluate(self, data_loader, svhn_data, iou_threshold=0.5, training=False):
+    def evaluate(self, data_loader, svhn_data, iou_threshold=0.5):
+        was_training = self.training
         self.eval()
         predictions = self._get_predictions(data_loader)
         accuracy = SVHN.evaluate(svhn_data, predictions, iou_threshold=iou_threshold)
-        if training:
+        if was_training:
             self.train()
         return accuracy
 
@@ -154,6 +159,11 @@ class Detector(torch.nn.Module):
                     final_boxes[:, 3] *= scale_x
 
                     total_detections += len(final_classes)
+
+                    if len(final_classes) > 0:
+                        nms_idx = batched_nms(final_boxes, confidences[mask], class_ids[mask], iou_threshold=0.5)
+                        final_classes = final_classes[nms_idx]
+                        final_boxes = final_boxes[nms_idx]
 
                     predictions.append((final_classes.cpu(), final_boxes.cpu()))
 
@@ -270,13 +280,14 @@ def main(args: argparse.Namespace) -> None:
         # Assume that for a single test image we get
         # - `predicted_classes`: a 1D array with the predicted digits,
         # - `predicted_bboxes`: a [len(predicted_classes), 4] array with bboxes;
-        for images, _, _, _ in test:
-            predictions = model.predict(test)
-            for i in range(images.shape[0]):
-                predicted_classes, predicted_bboxes = predictions[i]
-                for cls, bbox in zip(predicted_classes, predicted_bboxes):
-                    line = f"{cls.item()} {bbox[0].item():.2f} {bbox[1].item():.2f} {bbox[2].item():.2f} {bbox[3].item():.2f}\n"
-                    predictions_file.write(line)
+        predictions = model.predict(test)
+
+        for predicted_classes, predicted_bboxes in predictions:
+            output = []
+            for label, bbox in zip(predicted_classes, predicted_bboxes):
+                output += [int(label)] + list(map(float, bbox))
+            print(*output, file=predictions_file)
+
 
 
 if __name__ == "__main__":
