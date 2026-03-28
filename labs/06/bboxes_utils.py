@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# 964bdfc8-60b0-4398-b837-7c2520532d17
+# 4b50a6fb-a4a6-4b30-9879-0b671f941a72
+# f5419161-0138-4909-8252-ba9794a63e53
+
 import argparse
 from math import log
 from typing import Callable
@@ -15,6 +19,7 @@ TOP: int = 0
 LEFT: int = 1
 BOTTOM: int = 2
 RIGHT: int = 3
+
 
 
 def bboxes_area(bboxes: torch.Tensor) -> torch.Tensor:
@@ -67,7 +72,17 @@ def bboxes_to_rcnn(anchors: torch.Tensor, bboxes: torch.Tensor) -> torch.Tensor:
     the output shape is `[anchors_len, 4]`.
     """
     # TODO: Implement according to the docstring.
-    raise NotImplementedError()
+
+    anchors = anchors.to(torch.float32)
+    bboxes = bboxes.to(torch.float32)
+
+    rcnns = torch.zeros_like(anchors)
+    rcnns[..., 0] = ((bboxes[..., TOP] + bboxes[..., BOTTOM]) / 2 - (anchors[..., TOP] + anchors[..., BOTTOM]) / 2) / (anchors[..., BOTTOM] - anchors[..., TOP])
+    rcnns[..., 1] = ((bboxes[..., LEFT] + bboxes[..., RIGHT]) / 2 - (anchors[..., LEFT] + anchors[..., RIGHT]) / 2) / (anchors[..., RIGHT] - anchors[..., LEFT])
+    rcnns[..., 2] = torch.log((bboxes[..., BOTTOM] - bboxes[..., TOP]) / (anchors[..., BOTTOM] - anchors[..., TOP]))
+    rcnns[..., 3] = torch.log((bboxes[..., RIGHT] - bboxes[..., LEFT]) / (anchors[..., RIGHT] - anchors[..., LEFT]))
+
+    return rcnns
 
 
 def bboxes_from_rcnn(anchors: torch.Tensor, rcnns: torch.Tensor) -> torch.Tensor:
@@ -77,7 +92,18 @@ def bboxes_from_rcnn(anchors: torch.Tensor, rcnns: torch.Tensor) -> torch.Tensor
     the output shape is `[anchors_len, 4]`.
     """
     # TODO: Implement according to the docstring.
-    raise NotImplementedError()
+    anchors = anchors.to(torch.float32)
+    rcnns = rcnns.to(torch.float32)
+    
+    bboxes = torch.zeros_like(anchors)
+    # Anchor top + Anchor mid + mid dist - bbox mid
+    # anchors[..., TOP] + (anchors[..., BOTTOM] - anchors[..., TOP])/2 + (anchors[..., BOTTOM] - anchors[..., TOP]) * rcnns[..., 0] - torch.exp(rcnns[..., 2]) * (anchors[..., BOTTOM] - anchors[..., TOP]) / 2   ->
+    bboxes[..., TOP] = anchors[..., TOP] + (anchors[..., BOTTOM] - anchors[..., TOP]) * (0.5 + rcnns[..., 0] - torch.exp(rcnns[..., 2]) / 2 )    
+    bboxes[..., LEFT] = anchors[..., LEFT] + (anchors[..., RIGHT] - anchors[..., LEFT]) * (0.5 + rcnns[..., 1] - torch.exp(rcnns[..., 3]) / 2)
+    bboxes[..., BOTTOM] = bboxes[..., TOP] + torch.exp(rcnns[..., 2]) * (anchors[..., BOTTOM] - anchors[..., TOP])
+    bboxes[..., RIGHT] = bboxes[..., LEFT] + torch.exp(rcnns[..., 3]) * (anchors[..., RIGHT] - anchors[..., LEFT])
+
+    return bboxes
 
 
 def bboxes_training(
@@ -117,11 +143,48 @@ def bboxes_training(
     # several gold objects are assigned to a single anchor, use the gold object
     # with the smaller index.
 
+    G = gold_bboxes.shape[0]
+    device = anchors.device
+    if G == 0:
+        return (
+            torch.zeros((anchors.shape[0],), dtype=torch.long, device=device),
+            torch.zeros((anchors.shape[0], 4), dtype=torch.float32, device=device),
+        )
+
+    ious = bboxes_iou(anchors[:, None], gold_bboxes[None, :]) # [anchors, gold]
+    best_anchor_for_gold = torch.argmax(ious, dim=0) # [gold]
+
+    gold_ids = torch.arange(G, dtype=torch.long, device=device) # [gold]
+
+    assigned_gold_for_anchor = torch.full((anchors.shape[0],), G, dtype=torch.long, device=device) # [anchor]
+
+    assigned_gold_for_anchor.scatter_reduce_(0, best_anchor_for_gold, gold_ids, reduce='amin')
+
+
     # TODO: For each unused anchor, find the gold object with the largest IoU
     # (again the gold object with the smaller index if there are several),
     # and if the IoU is >= threshold, assign the object to the anchor.
 
-    anchor_classes, anchor_bboxes = ..., ...
+    unused_anchors = torch.where(assigned_gold_for_anchor == G)[0]
+
+    best_gold_for_unused = torch.argmax(ious[unused_anchors], dim=1)
+
+    best_ious_for_unused = ious[unused_anchors, best_gold_for_unused]
+
+    to_assign = best_ious_for_unused >= iou_threshold
+
+    assigned_gold_for_anchor[unused_anchors[to_assign]] = best_gold_for_unused[to_assign]
+
+
+    anchor_bboxes = torch.zeros((anchors.shape[0], 4), dtype=torch.float32, device=device)
+    assigned_mask = assigned_gold_for_anchor != G
+
+    if assigned_mask.any():
+        anchor_bboxes[assigned_mask] = bboxes_to_rcnn(anchors[assigned_mask], gold_bboxes[assigned_gold_for_anchor[assigned_mask]])
+
+    anchor_classes = torch.zeros((anchors.shape[0],), dtype=torch.long, device=device)
+    assigned_gold_mask = assigned_gold_for_anchor != G  
+    anchor_classes[assigned_gold_mask] = 1 + gold_classes[assigned_gold_for_anchor[assigned_gold_mask]]
 
     return anchor_classes, anchor_bboxes
 
