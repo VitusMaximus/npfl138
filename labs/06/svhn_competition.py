@@ -83,7 +83,7 @@ class Detector(torch.nn.Module):
         for epoch in range(self.args.epochs):
             total_loss = 0.0
             steps = 0
-            for images, classes, bboxes in train_loader:
+            for images, classes, bboxes, _ in train_loader:
                 images = images.to(self.device, non_blocking=True)
 
                 predicted_classes, predicted_boxes, H, W = self(images)
@@ -111,20 +111,24 @@ class Detector(torch.nn.Module):
                 steps += 1
             
             print("Evaluating ...")
-            accuracy = self.evaluate(dev_loader, svhn.dev)
+            accuracy = self.evaluate(dev_loader, svhn.dev, training=True)
             
             print(f"Epoch {epoch+1}/{self.args.epochs}, Loss: {total_loss/steps:.4f}, Dev Accuracy: {accuracy:.4f}")
 
 
-    def evaluate(self, data_loader, svhn_data, iou_threshold=0.5):
+    def evaluate(self, data_loader, svhn_data, iou_threshold=0.5, training=False):
+        self.eval()
         predictions = self._get_predictions(data_loader)
         accuracy = SVHN.evaluate(svhn_data, predictions, iou_threshold=iou_threshold)
+        if training:
+            self.train()
         return accuracy
 
     def _get_predictions(self, data_loader):
         predictions = []
+        total_detections = 0
         with torch.no_grad():
-            for images, _, _ in data_loader:
+            for images, _, _, sizes in data_loader:
                 images = images.to(self.device, non_blocking=True)
                 predicted_classes, predicted_rcnn_boxes, H, W = self(images)
                 anchors = generate_anchors(H, W).to(self.device)
@@ -138,10 +142,22 @@ class Detector(torch.nn.Module):
 
                     mask = (confidences > self.args.confidence_threshold) & (class_ids > 0)
 
-                    final_classes = class_ids[mask]
-                    final_boxes = predicted_boxes_single[mask]
+                    final_classes = (class_ids[mask] -1)
+                    final_boxes = predicted_boxes_single[mask].clone()
 
-                    predictions.append((final_classes, final_boxes))
+                    old_h, old_w = sizes[i]
+                    scale_y = old_h / 224
+                    scale_x = old_w / 224
+                    final_boxes[:, 0] *= scale_y
+                    final_boxes[:, 1] *= scale_x
+                    final_boxes[:, 2] *= scale_y
+                    final_boxes[:, 3] *= scale_x
+
+                    total_detections += len(final_classes)
+
+                    predictions.append((final_classes.cpu(), final_boxes.cpu()))
+
+        print(f"Total detections: {total_detections}")
         return predictions
 
     def predict(self, data_loader):
@@ -193,13 +209,14 @@ class SVHNDataset(torch.utils.data.Dataset):
         bboxes[:, 2] *= scale_y
         bboxes[:, 3] *= scale_x
 
-        return image, classes, bboxes
+        return image, classes, bboxes, old_h, old_w
 
 def collate_svhn(batch):
     images = torch.stack([x[0] for x in batch], dim=0)
     classes_list = [x[1] for x in batch]
     bboxes_list = [x[2] for x in batch]
-    return images, classes_list, bboxes_list
+    sizes = [(x[3], x[4]) for x in batch]
+    return images, classes_list, bboxes_list, sizes
 
 
 def main(args: argparse.Namespace) -> None:
@@ -253,9 +270,13 @@ def main(args: argparse.Namespace) -> None:
         # Assume that for a single test image we get
         # - `predicted_classes`: a 1D array with the predicted digits,
         # - `predicted_bboxes`: a [len(predicted_classes), 4] array with bboxes;
-        for images, _, _ in test:
-            for _ in range(images.shape[0]):
-                print(file=predictions_file)
+        for images, _, _, _ in test:
+            predictions = model.predict(test)
+            for i in range(images.shape[0]):
+                predicted_classes, predicted_bboxes = predictions[i]
+                for cls, bbox in zip(predicted_classes, predicted_bboxes):
+                    line = f"{cls.item()} {bbox[0].item():.2f} {bbox[1].item():.2f} {bbox[2].item():.2f} {bbox[3].item():.2f}\n"
+                    predictions_file.write(line)
 
 
 if __name__ == "__main__":
