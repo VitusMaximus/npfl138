@@ -17,9 +17,9 @@ from torchvision.ops import batched_nms
 # Also, you can set the number of threads to 0 to use all your CPU cores.
 parser = argparse.ArgumentParser()
 parser.add_argument("--batch_size", default=32, type=int, help="Batch size.")
-parser.add_argument("--epochs", default=10, type=int, help="Number of epochs.")
+parser.add_argument("--epochs", default=1, type=int, help="Number of epochs.")
 parser.add_argument("--seed", default=42, type=int, help="Random seed.")
-parser.add_argument("--threads", default=1, type=int, help="Maximum number of threads to use.")
+parser.add_argument("--threads", default=0, type=int, help="Maximum number of threads to use.")
 
 parser.add_argument("--lr", default=0.001, type=float, help="Learning rate.")
 parser.add_argument("--confidence_threshold", default=0.2, type=float, help="Confidence threshold for predictions.")
@@ -79,7 +79,7 @@ class Detector(torch.nn.Module):
 
         return class_loss + box_loss
     
-    def fit(self, train_loader, dev_loader, optimizer, svhn):
+    def fit(self, train_loader, dev_loader, optimizer, svhn, train_eval_loader):
         self.train()
 
         for epoch in range(self.args.epochs):
@@ -114,7 +114,7 @@ class Detector(torch.nn.Module):
             
             print("Evaluating ...")
             accuracy_dev = self.evaluate(dev_loader, svhn.dev)
-            accuracy_train = self.evaluate(train_loader, svhn.train)
+            accuracy_train = self.evaluate(train_eval_loader, svhn.train)
 
             
             print(f"Epoch {epoch+1}/{self.args.epochs}, Loss: {total_loss/steps:.4f}, Dev Accuracy: {accuracy_dev:.4f}, Train Accuracy: {accuracy_train:.4f}")
@@ -266,12 +266,13 @@ def main(args: argparse.Namespace) -> None:
 
     dataset = SVHNDataset(svhn.train)
     train = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True, collate_fn=collate_svhn)
+    train_eval = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, collate_fn=collate_svhn)
     dev = torch.utils.data.DataLoader(SVHNDataset(svhn.dev), batch_size=args.batch_size, collate_fn=collate_svhn)
     test = torch.utils.data.DataLoader(SVHNDataset(svhn.test), batch_size=args.batch_size, collate_fn=collate_svhn)
 
     optimizer = torch.optim.Adam(model.parameters(), args.lr)
 
-    model.fit(train, dev, optimizer, svhn)
+    model.fit(train, dev, optimizer, svhn, train_eval)
 
     # Generate test set annotations, but in `logdir` to allow parallel execution.
     os.makedirs(logdir, exist_ok=True)
