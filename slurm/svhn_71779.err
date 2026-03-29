@@ -1,0 +1,6 @@
+/var/spool/slurmd/job71779/slurm_script: line 12: /home/vitek/School/npfl138/VENV_DIR/bin/activate: No such file or directory
+/var/spool/slurmd/job71779/slurm_script: line 15: cd: /home/vitek/School/npfl138: No such file or directory
+/var/spool/slurmd/job71779/slurm_script: line 18: python: command not found
+slurmstepd: error: common_file_write_uint32s: write pid 1778455 to /sys/fs/cgroup/cgroup.procs failed: Device or resource busy
+slurmstepd: error: Unable to move pid 1778455 to init root cgroup /sys/fs/cgroup
+slurmstepd: error: error unlocking cgroup '/sys/fs/cgroup/system.slice/slurmstepd.scope' : Bad file descriptor

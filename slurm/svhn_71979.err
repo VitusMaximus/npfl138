@@ -1,0 +1,7 @@
+usage: svhn_competition.py [-h] [--batch_size BATCH_SIZE] [--epochs EPOCHS]
+                           [--seed SEED] [--threads THREADS] [--lr LR]
+                           [--confidence_threshold CONFIDENCE_THRESHOLD]
+svhn_competition.py: error: unrecognized arguments: --confidence_treshold=0.1
+slurmstepd: error: common_file_write_uint32s: write pid 1167978 to /sys/fs/cgroup/cgroup.procs failed: Device or resource busy
+slurmstepd: error: Unable to move pid 1167978 to init root cgroup /sys/fs/cgroup
+slurmstepd: error: error unlocking cgroup '/sys/fs/cgroup/system.slice/slurmstepd.scope' : Bad file descriptor

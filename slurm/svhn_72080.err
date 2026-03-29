@@ -1,0 +1,4 @@
+slurmstepd: error: *** JOB 72080 ON gpu-node3 CANCELLED AT 2026-03-29T18:02:12 ***
+slurmstepd: error: common_file_write_uint32s: write pid 1170689 to /sys/fs/cgroup/cgroup.procs failed: Device or resource busy
+slurmstepd: error: Unable to move pid 1170689 to init root cgroup /sys/fs/cgroup
+slurmstepd: error: error unlocking cgroup '/sys/fs/cgroup/system.slice/slurmstepd.scope' : Bad file descriptor
