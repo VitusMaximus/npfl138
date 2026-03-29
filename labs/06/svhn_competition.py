@@ -299,8 +299,8 @@ def main(args: argparse.Namespace) -> None:
                 output += [int(label)] + list(map(float, bbox))
             print(*output, file=predictions_file)
 
-        test_accuracy = SVHN.evaluate(svhn.test, predictions)
-        print(f"Test Accuracy: {test_accuracy:.4f}")
+        #test_accuracy = SVHN.evaluate(svhn.test, predictions)
+        #print(f"Test Accuracy: {test_accuracy:.4f}")
 
 
 
