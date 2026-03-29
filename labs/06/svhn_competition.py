@@ -11,7 +11,7 @@ import npfl138
 npfl138.require_version("2526.6")
 from npfl138.datasets.svhn import SVHN
 
-from torchvision.ops import batched_nms
+from torchvision.ops import batched_nms, sigmoid_focal_loss
 
 # TODO: Define reasonable defaults and optionally more parameters.
 # Also, you can set the number of threads to 0 to use all your CPU cores.
@@ -69,7 +69,13 @@ class Detector(torch.nn.Module):
         return cls, box, H, W
     
     def compute_loss(self, predicted_classes, predicted_bboxes, target_classes, target_bboxes):
-        class_loss = torch.nn.functional.cross_entropy(predicted_classes, target_classes, reduction='mean')
+        #class_loss = torch.nn.functional.cross_entropy(predicted_classes, target_classes, reduction='mean')
+        
+
+        targets_onehot = torch.zeros_like(predicted_classes, dtype=torch.float32)
+        targets_onehot.scatter_(1, target_classes.unsqueeze(1), 1.0)
+
+        class_loss = sigmoid_focal_loss(predicted_classes, targets_onehot, reduction='mean')
 
         mask = target_classes > 0
         if mask.any():
@@ -231,6 +237,7 @@ def collate_svhn(batch):
 
 def main(args: argparse.Namespace) -> None:
     # Set the random seed and the number of threads.
+    print("Setting up...")
     npfl138.startup(args.seed, args.threads)
     npfl138.global_keras_initializers()
 
@@ -243,6 +250,7 @@ def main(args: argparse.Namespace) -> None:
     # - "bboxes", a `[num_digits, 4]` PyTorch vector with bounding boxes of image digits.
     # The `decode_on_demand` argument can be set to `True` to save memory and decode
     # each image only when accessed, but it will most likely slow down training.
+    print("Loading SVHN dataset...")
     svhn = SVHN(decode_on_demand=False)
 
     # Load the EfficientNetV2-B0 model without the classification layer.
@@ -251,6 +259,7 @@ def main(args: argparse.Namespace) -> None:
     # obtaining (assuming the input images have 224x224 resolution):
     # - `output` is a `[N, 1280, 7, 7]` tensor with the final features before global average pooling,
     # - `features` is a list of intermediate features with resolution 112x112, 56x56, 28x28, 14x14, 7x7.
+    print("Loading EfficientNetV2-B0 model...")
     efficientnetv2_b0 = timm.create_model("tf_efficientnetv2_b0.in1k", pretrained=True, num_classes=0)
 
     efficientnetv2_b0
@@ -272,7 +281,7 @@ def main(args: argparse.Namespace) -> None:
 
     #scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(model.parameters(), T_max=args.epochs)
     optimizer = torch.optim.Adam(model.parameters(), args.lr)
-
+    print("Starting training...")
     model.fit(train, dev, optimizer, svhn, train_eval)
 
     # Generate test set annotations, but in `logdir` to allow parallel execution.
