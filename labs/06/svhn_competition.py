@@ -180,7 +180,7 @@ class Detector(torch.nn.Module):
 
 
 
-def generate_anchors(H, W, img_size=224, aspect_ratios=[1], anchor_size=32):
+def generate_anchors(H, W, img_size=224, aspect_ratios=[0.75], anchor_size=32):
     stride = img_size / H
     anchors = []
     for i in range(H):
@@ -270,6 +270,7 @@ def main(args: argparse.Namespace) -> None:
     dev = torch.utils.data.DataLoader(SVHNDataset(svhn.dev), batch_size=args.batch_size, collate_fn=collate_svhn)
     test = torch.utils.data.DataLoader(SVHNDataset(svhn.test), batch_size=args.batch_size, collate_fn=collate_svhn)
 
+    #scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(model.parameters(), T_max=args.epochs)
     optimizer = torch.optim.Adam(model.parameters(), args.lr)
 
     model.fit(train, dev, optimizer, svhn, train_eval)
@@ -288,6 +289,9 @@ def main(args: argparse.Namespace) -> None:
             for label, bbox in zip(predicted_classes, predicted_bboxes):
                 output += [int(label)] + list(map(float, bbox))
             print(*output, file=predictions_file)
+
+        test_accuracy = SVHN.evaluate(svhn.test, predictions)
+        print(f"Test Accuracy: {test_accuracy:.4f}")
 
 
 
