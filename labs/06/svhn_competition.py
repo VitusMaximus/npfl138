@@ -85,7 +85,7 @@ class Detector(torch.nn.Module):
 
         return class_loss + box_loss
     
-    def fit(self, train_loader, dev_loader, optimizer, svhn, train_eval_loader):
+    def fit(self, train_loader, dev_loader, optimizer, scheduler, svhn, train_eval_loader):
         self.train()
 
         for epoch in range(self.args.epochs):
@@ -122,8 +122,9 @@ class Detector(torch.nn.Module):
             accuracy_dev = self.evaluate(dev_loader, svhn.dev)
             accuracy_train = self.evaluate(train_eval_loader, svhn.train)
 
-            
             print(f"Epoch {epoch+1}/{self.args.epochs}, Loss: {total_loss/steps:.4f}, Dev Accuracy: {accuracy_dev:.4f}, Train Accuracy: {accuracy_train:.4f}")
+
+            scheduler.step()
 
 
     def evaluate(self, data_loader, svhn_data, iou_threshold=0.5):
@@ -279,10 +280,12 @@ def main(args: argparse.Namespace) -> None:
     dev = torch.utils.data.DataLoader(SVHNDataset(svhn.dev), batch_size=args.batch_size, collate_fn=collate_svhn)
     test = torch.utils.data.DataLoader(SVHNDataset(svhn.test), batch_size=args.batch_size, collate_fn=collate_svhn)
 
-    #scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(model.parameters(), T_max=args.epochs)
+    
     optimizer = torch.optim.Adam(model.parameters(), args.lr)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs)
+
     print("Starting training...")
-    model.fit(train, dev, optimizer, svhn, train_eval)
+    model.fit(train, dev, optimizer, scheduler, svhn, train_eval)
 
     # Generate test set annotations, but in `logdir` to allow parallel execution.
     os.makedirs(logdir, exist_ok=True)
