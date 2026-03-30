@@ -69,13 +69,13 @@ class Detector(torch.nn.Module):
         return cls, box, H, W
     
     def compute_loss(self, predicted_classes, predicted_bboxes, target_classes, target_bboxes):
-        #class_loss = torch.nn.functional.cross_entropy(predicted_classes, target_classes, reduction='mean')
+        class_loss = torch.nn.functional.cross_entropy(predicted_classes, target_classes, reduction='mean')
         
 
-        targets_onehot = torch.zeros_like(predicted_classes, dtype=torch.float32)
-        targets_onehot.scatter_(1, target_classes.unsqueeze(1), 1.0)
+        #targets_onehot = torch.zeros_like(predicted_classes, dtype=torch.float32)
+        #targets_onehot.scatter_(1, target_classes.unsqueeze(1), 1.0)
 
-        class_loss = sigmoid_focal_loss(predicted_classes, targets_onehot, reduction='mean')
+        #class_loss = sigmoid_focal_loss(predicted_classes, targets_onehot, reduction='mean')
 
         mask = target_classes > 0
         if mask.any():

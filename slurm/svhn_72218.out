@@ -10,3 +10,397 @@ Evaluating ...
 Total detections: 296
 Total detections: 2368
 Epoch 2/100, Loss: 0.0352, Dev Accuracy: 0.0047, Train Accuracy: 0.0065
+Evaluating ...
+Total detections: 183
+Total detections: 1398
+Epoch 3/100, Loss: 0.0264, Dev Accuracy: 0.0032, Train Accuracy: 0.0040
+Evaluating ...
+Total detections: 253
+Total detections: 2093
+Epoch 4/100, Loss: 0.0216, Dev Accuracy: 0.0039, Train Accuracy: 0.0110
+Evaluating ...
+Total detections: 150
+Total detections: 1234
+Epoch 5/100, Loss: 0.0195, Dev Accuracy: 0.0039, Train Accuracy: 0.0084
+Evaluating ...
+Total detections: 300
+Total detections: 2387
+Epoch 6/100, Loss: 0.0179, Dev Accuracy: 0.0166, Train Accuracy: 0.0214
+Evaluating ...
+Total detections: 716
+Total detections: 5729
+Epoch 7/100, Loss: 0.0162, Dev Accuracy: 0.0521, Train Accuracy: 0.0552
+Evaluating ...
+Total detections: 663
+Total detections: 5271
+Epoch 8/100, Loss: 0.0151, Dev Accuracy: 0.0529, Train Accuracy: 0.0670
+Evaluating ...
+Total detections: 655
+Total detections: 5393
+Epoch 9/100, Loss: 0.0142, Dev Accuracy: 0.0647, Train Accuracy: 0.0737
+Evaluating ...
+Total detections: 633
+Total detections: 5186
+Epoch 10/100, Loss: 0.0133, Dev Accuracy: 0.0647, Train Accuracy: 0.0697
+Evaluating ...
+Total detections: 733
+Total detections: 5824
+Epoch 11/100, Loss: 0.0127, Dev Accuracy: 0.0797, Train Accuracy: 0.0871
+Evaluating ...
+Total detections: 865
+Total detections: 7096
+Epoch 12/100, Loss: 0.0126, Dev Accuracy: 0.1058, Train Accuracy: 0.1082
+Evaluating ...
+Total detections: 861
+Total detections: 7325
+Epoch 13/100, Loss: 0.0121, Dev Accuracy: 0.0971, Train Accuracy: 0.1134
+Evaluating ...
+Total detections: 994
+Total detections: 7861
+Epoch 14/100, Loss: 0.0117, Dev Accuracy: 0.1105, Train Accuracy: 0.1223
+Evaluating ...
+Total detections: 616
+Total detections: 5156
+Epoch 15/100, Loss: 0.0113, Dev Accuracy: 0.0608, Train Accuracy: 0.0788
+Evaluating ...
+Total detections: 886
+Total detections: 7469
+Epoch 16/100, Loss: 0.0110, Dev Accuracy: 0.1129, Train Accuracy: 0.1196
+Evaluating ...
+Total detections: 966
+Total detections: 7898
+Epoch 17/100, Loss: 0.0108, Dev Accuracy: 0.1389, Train Accuracy: 0.1455
+Evaluating ...
+Total detections: 695
+Total detections: 5656
+Epoch 18/100, Loss: 0.0109, Dev Accuracy: 0.0931, Train Accuracy: 0.0901
+Evaluating ...
+Total detections: 1110
+Total detections: 9546
+Epoch 19/100, Loss: 0.0109, Dev Accuracy: 0.1665, Train Accuracy: 0.1863
+Evaluating ...
+Total detections: 982
+Total detections: 7764
+Epoch 20/100, Loss: 0.0104, Dev Accuracy: 0.1515, Train Accuracy: 0.1545
+Evaluating ...
+Total detections: 1108
+Total detections: 9192
+Epoch 21/100, Loss: 0.0104, Dev Accuracy: 0.1689, Train Accuracy: 0.1778
+Evaluating ...
+Total detections: 981
+Total detections: 8259
+Epoch 22/100, Loss: 0.0111, Dev Accuracy: 0.1365, Train Accuracy: 0.1482
+Evaluating ...
+Total detections: 876
+Total detections: 7397
+Epoch 23/100, Loss: 0.0106, Dev Accuracy: 0.1152, Train Accuracy: 0.1372
+Evaluating ...
+Total detections: 1189
+Total detections: 9631
+Epoch 24/100, Loss: 0.0102, Dev Accuracy: 0.1752, Train Accuracy: 0.1957
+Evaluating ...
+Total detections: 1338
+Total detections: 10929
+Epoch 25/100, Loss: 0.0101, Dev Accuracy: 0.2052, Train Accuracy: 0.2229
+Evaluating ...
+Total detections: 1355
+Total detections: 11524
+Epoch 26/100, Loss: 0.0101, Dev Accuracy: 0.2021, Train Accuracy: 0.2481
+Evaluating ...
+Total detections: 1467
+Total detections: 12753
+Epoch 27/100, Loss: 0.0101, Dev Accuracy: 0.2526, Train Accuracy: 0.2941
+Evaluating ...
+Total detections: 1178
+Total detections: 10094
+Epoch 28/100, Loss: 0.0100, Dev Accuracy: 0.1665, Train Accuracy: 0.2032
+Evaluating ...
+Total detections: 1439
+Total detections: 11760
+Epoch 29/100, Loss: 0.0099, Dev Accuracy: 0.2131, Train Accuracy: 0.2530
+Evaluating ...
+Total detections: 1403
+Total detections: 11910
+Epoch 30/100, Loss: 0.0101, Dev Accuracy: 0.2265, Train Accuracy: 0.2427
+Evaluating ...
+Total detections: 1284
+Total detections: 10925
+Epoch 31/100, Loss: 0.0098, Dev Accuracy: 0.1965, Train Accuracy: 0.2221
+Evaluating ...
+Total detections: 1200
+Total detections: 10270
+Epoch 32/100, Loss: 0.0096, Dev Accuracy: 0.1365, Train Accuracy: 0.1758
+Evaluating ...
+Total detections: 1289
+Total detections: 11174
+Epoch 33/100, Loss: 0.0122, Dev Accuracy: 0.2028, Train Accuracy: 0.2377
+Evaluating ...
+Total detections: 1301
+Total detections: 10995
+Epoch 34/100, Loss: 0.0103, Dev Accuracy: 0.2131, Train Accuracy: 0.2474
+Evaluating ...
+Total detections: 1365
+Total detections: 11429
+Epoch 35/100, Loss: 0.0114, Dev Accuracy: 0.2226, Train Accuracy: 0.2558
+Evaluating ...
+Total detections: 1465
+Total detections: 12521
+Epoch 36/100, Loss: 0.0095, Dev Accuracy: 0.2557, Train Accuracy: 0.2986
+Evaluating ...
+Total detections: 1755
+Total detections: 14989
+Epoch 37/100, Loss: 0.0089, Dev Accuracy: 0.2778, Train Accuracy: 0.3302
+Evaluating ...
+Total detections: 1727
+Total detections: 14829
+Epoch 38/100, Loss: 0.0086, Dev Accuracy: 0.3078, Train Accuracy: 0.3504
+Evaluating ...
+Total detections: 1378
+Total detections: 12329
+Epoch 39/100, Loss: 0.0087, Dev Accuracy: 0.2297, Train Accuracy: 0.2728
+Evaluating ...
+Total detections: 1519
+Total detections: 13530
+Epoch 40/100, Loss: 0.0087, Dev Accuracy: 0.2407, Train Accuracy: 0.2950
+Evaluating ...
+Total detections: 1558
+Total detections: 14152
+Epoch 41/100, Loss: 0.0091, Dev Accuracy: 0.2628, Train Accuracy: 0.3229
+Evaluating ...
+Total detections: 1479
+Total detections: 13532
+Epoch 42/100, Loss: 0.0089, Dev Accuracy: 0.2549, Train Accuracy: 0.3095
+Evaluating ...
+Total detections: 1411
+Total detections: 12761
+Epoch 43/100, Loss: 0.0087, Dev Accuracy: 0.2194, Train Accuracy: 0.2715
+Evaluating ...
+Total detections: 1675
+Total detections: 15192
+Epoch 44/100, Loss: 0.0087, Dev Accuracy: 0.2818, Train Accuracy: 0.3537
+Evaluating ...
+Total detections: 1505
+Total detections: 14648
+Epoch 45/100, Loss: 0.0086, Dev Accuracy: 0.2242, Train Accuracy: 0.3263
+Evaluating ...
+Total detections: 1448
+Total detections: 13629
+Epoch 46/100, Loss: 0.0088, Dev Accuracy: 0.2218, Train Accuracy: 0.3029
+Evaluating ...
+Total detections: 1431
+Total detections: 14076
+Epoch 47/100, Loss: 0.0089, Dev Accuracy: 0.2186, Train Accuracy: 0.3246
+Evaluating ...
+Total detections: 1624
+Total detections: 15748
+Epoch 48/100, Loss: 0.0087, Dev Accuracy: 0.2376, Train Accuracy: 0.3605
+Evaluating ...
+Total detections: 1646
+Total detections: 15970
+Epoch 49/100, Loss: 0.0085, Dev Accuracy: 0.2526, Train Accuracy: 0.3681
+Evaluating ...
+Total detections: 1483
+Total detections: 14744
+Epoch 50/100, Loss: 0.0085, Dev Accuracy: 0.2234, Train Accuracy: 0.3389
+Evaluating ...
+Total detections: 1778
+Total detections: 17353
+Epoch 51/100, Loss: 0.0086, Dev Accuracy: 0.2897, Train Accuracy: 0.4322
+Evaluating ...
+Total detections: 2096
+Total detections: 18095
+Epoch 52/100, Loss: 0.0091, Dev Accuracy: 0.3394, Train Accuracy: 0.4095
+Evaluating ...
+Total detections: 1468
+Total detections: 13958
+Epoch 53/100, Loss: 0.0092, Dev Accuracy: 0.2305, Train Accuracy: 0.3313
+Evaluating ...
+Total detections: 1510
+Total detections: 15038
+Epoch 54/100, Loss: 0.0084, Dev Accuracy: 0.2297, Train Accuracy: 0.3430
+Evaluating ...
+Total detections: 1602
+Total detections: 16418
+Epoch 55/100, Loss: 0.0081, Dev Accuracy: 0.2257, Train Accuracy: 0.3793
+Evaluating ...
+Total detections: 1935
+Total detections: 18624
+Epoch 56/100, Loss: 0.0080, Dev Accuracy: 0.3283, Train Accuracy: 0.4860
+Evaluating ...
+Total detections: 1510
+Total detections: 15873
+Epoch 57/100, Loss: 0.0081, Dev Accuracy: 0.1989, Train Accuracy: 0.3690
+Evaluating ...
+Total detections: 1545
+Total detections: 16452
+Epoch 58/100, Loss: 0.0080, Dev Accuracy: 0.2391, Train Accuracy: 0.4113
+Evaluating ...
+Total detections: 2284
+Total detections: 21405
+Epoch 59/100, Loss: 0.0081, Dev Accuracy: 0.3536, Train Accuracy: 0.5714
+Evaluating ...
+Total detections: 1879
+Total detections: 19073
+Epoch 60/100, Loss: 0.0082, Dev Accuracy: 0.3007, Train Accuracy: 0.4981
+Evaluating ...
+Total detections: 1888
+Total detections: 18988
+Epoch 61/100, Loss: 0.0082, Dev Accuracy: 0.3086, Train Accuracy: 0.5104
+Evaluating ...
+Total detections: 1965
+Total detections: 19683
+Epoch 62/100, Loss: 0.0081, Dev Accuracy: 0.3425, Train Accuracy: 0.5521
+Evaluating ...
+Total detections: 1776
+Total detections: 18267
+Epoch 63/100, Loss: 0.0079, Dev Accuracy: 0.2494, Train Accuracy: 0.4900
+Evaluating ...
+Total detections: 1981
+Total detections: 19797
+Epoch 64/100, Loss: 0.0079, Dev Accuracy: 0.3118, Train Accuracy: 0.5623
+Evaluating ...
+Total detections: 1981
+Total detections: 20076
+Epoch 65/100, Loss: 0.0080, Dev Accuracy: 0.3323, Train Accuracy: 0.5857
+Evaluating ...
+Total detections: 1775
+Total detections: 18762
+Epoch 66/100, Loss: 0.0080, Dev Accuracy: 0.2628, Train Accuracy: 0.5259
+Evaluating ...
+Total detections: 1878
+Total detections: 19521
+Epoch 67/100, Loss: 0.0080, Dev Accuracy: 0.2660, Train Accuracy: 0.5588
+Evaluating ...
+Total detections: 2118
+Total detections: 21203
+Epoch 68/100, Loss: 0.0079, Dev Accuracy: 0.3323, Train Accuracy: 0.6322
+Evaluating ...
+Total detections: 2027
+Total detections: 20745
+Epoch 69/100, Loss: 0.0079, Dev Accuracy: 0.3110, Train Accuracy: 0.6339
+Evaluating ...
+Total detections: 2191
+Total detections: 21975
+Epoch 70/100, Loss: 0.0077, Dev Accuracy: 0.3260, Train Accuracy: 0.6952
+Evaluating ...
+Total detections: 1933
+Total detections: 20711
+Epoch 71/100, Loss: 0.0078, Dev Accuracy: 0.2802, Train Accuracy: 0.6556
+Evaluating ...
+Total detections: 2295
+Total detections: 22191
+Epoch 72/100, Loss: 0.0078, Dev Accuracy: 0.3457, Train Accuracy: 0.7097
+Evaluating ...
+Total detections: 1804
+Total detections: 20044
+Epoch 73/100, Loss: 0.0078, Dev Accuracy: 0.2510, Train Accuracy: 0.6415
+Evaluating ...
+Total detections: 2075
+Total detections: 21651
+Epoch 74/100, Loss: 0.0078, Dev Accuracy: 0.3315, Train Accuracy: 0.7220
+Evaluating ...
+Total detections: 2008
+Total detections: 21268
+Epoch 75/100, Loss: 0.0077, Dev Accuracy: 0.3118, Train Accuracy: 0.7360
+Evaluating ...
+Total detections: 2057
+Total detections: 21798
+Epoch 76/100, Loss: 0.0077, Dev Accuracy: 0.3228, Train Accuracy: 0.7599
+Evaluating ...
+Total detections: 1676
+Total detections: 19829
+Epoch 77/100, Loss: 0.0076, Dev Accuracy: 0.2328, Train Accuracy: 0.6729
+Evaluating ...
+Total detections: 1834
+Total detections: 21022
+Epoch 78/100, Loss: 0.0076, Dev Accuracy: 0.2881, Train Accuracy: 0.7560
+Evaluating ...
+Total detections: 1984
+Total detections: 21662
+Epoch 79/100, Loss: 0.0076, Dev Accuracy: 0.2976, Train Accuracy: 0.7902
+Evaluating ...
+Total detections: 2003
+Total detections: 21906
+Epoch 80/100, Loss: 0.0076, Dev Accuracy: 0.3181, Train Accuracy: 0.8288
+Evaluating ...
+Total detections: 2060
+Total detections: 21937
+Epoch 81/100, Loss: 0.0076, Dev Accuracy: 0.3197, Train Accuracy: 0.8254
+Evaluating ...
+Total detections: 2141
+Total detections: 21959
+Epoch 82/100, Loss: 0.0077, Dev Accuracy: 0.3204, Train Accuracy: 0.8047
+Evaluating ...
+Total detections: 2006
+Total detections: 21577
+Epoch 83/100, Loss: 0.0077, Dev Accuracy: 0.2976, Train Accuracy: 0.8071
+Evaluating ...
+Total detections: 2039
+Total detections: 20489
+Epoch 84/100, Loss: 0.0071, Dev Accuracy: 0.2920, Train Accuracy: 0.6045
+Evaluating ...
+Total detections: 2252
+Total detections: 22086
+Epoch 85/100, Loss: 0.0053, Dev Accuracy: 0.3378, Train Accuracy: 0.7382
+Evaluating ...
+Total detections: 2290
+Total detections: 22630
+Epoch 86/100, Loss: 0.0045, Dev Accuracy: 0.3623, Train Accuracy: 0.7964
+Evaluating ...
+Total detections: 1870
+Total detections: 20785
+Epoch 87/100, Loss: 0.0039, Dev Accuracy: 0.2904, Train Accuracy: 0.7646
+Evaluating ...
+Total detections: 2209
+Total detections: 22243
+Epoch 88/100, Loss: 0.0036, Dev Accuracy: 0.3552, Train Accuracy: 0.8509
+Evaluating ...
+Total detections: 2194
+Total detections: 22108
+Epoch 89/100, Loss: 0.0034, Dev Accuracy: 0.3323, Train Accuracy: 0.8552
+Evaluating ...
+Total detections: 1948
+Total detections: 21701
+Epoch 90/100, Loss: 0.0032, Dev Accuracy: 0.3197, Train Accuracy: 0.8529
+Evaluating ...
+Total detections: 1967
+Total detections: 21820
+Epoch 91/100, Loss: 0.0031, Dev Accuracy: 0.3047, Train Accuracy: 0.8794
+Evaluating ...
+Total detections: 1878
+Total detections: 21453
+Epoch 92/100, Loss: 0.0032, Dev Accuracy: 0.2976, Train Accuracy: 0.8606
+Evaluating ...
+Total detections: 1866
+Total detections: 21430
+Epoch 93/100, Loss: 0.0031, Dev Accuracy: 0.2920, Train Accuracy: 0.8686
+Evaluating ...
+Total detections: 1934
+Total detections: 21821
+Epoch 94/100, Loss: 0.0031, Dev Accuracy: 0.3015, Train Accuracy: 0.8976
+Evaluating ...
+Total detections: 2103
+Total detections: 22131
+Epoch 95/100, Loss: 0.0030, Dev Accuracy: 0.3583, Train Accuracy: 0.9166
+Evaluating ...
+Total detections: 2061
+Total detections: 22036
+Epoch 96/100, Loss: 0.0030, Dev Accuracy: 0.3236, Train Accuracy: 0.9277
+Evaluating ...
+Total detections: 1905
+Total detections: 21697
+Epoch 97/100, Loss: 0.0030, Dev Accuracy: 0.2881, Train Accuracy: 0.8979
+Evaluating ...
+Total detections: 2074
+Total detections: 22069
+Epoch 98/100, Loss: 0.0030, Dev Accuracy: 0.3362, Train Accuracy: 0.9362
+Evaluating ...
+Total detections: 1989
+Total detections: 22028
+Epoch 99/100, Loss: 0.0029, Dev Accuracy: 0.3031, Train Accuracy: 0.9272
+Evaluating ...
+Total detections: 1976
+Total detections: 21991
+Epoch 100/100, Loss: 0.0029, Dev Accuracy: 0.3189, Train Accuracy: 0.9433
+Total detections: 5544
+Test Accuracy: 0.0000
