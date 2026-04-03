@@ -138,8 +138,8 @@
 - _How to run a GPU computation on MetaCentrum?_
 
   First, read the official MetaCentrum documentation:
-  [Basic terms](https://docs.metacentrum.cz/en/docs/computing/concepts),
-  [Run simple job](https://docs.metacentrum.cz/en/docs/computing/run-basic-job),
+  [Getting started](https://docs.metacentrum.cz/en/docs/computing/run-basic-job),
+  [Advanced guide](https://docs.metacentrum.cz/en/docs/computing/advanced),
   [GPU computing](https://docs.metacentrum.cz/en/docs/computing/gpu-comput/gpu-job),
   [GPU clusters](https://docs.metacentrum.cz/en/docs/computing/gpu-comput/clusters).
 
@@ -271,43 +271,49 @@ Consider finetuning a given `backbone` in the following PyTorch module:
 ```python
 class Model(torch.nn.Module):
     def __init__(self, backbone: torch.nn.Module, args: argparse.Namespace) -> None:
-        super().init()
+        super().__init__()
         self.backbone = backbone
         ...
 ```
 
+Preventing a module from updating its weights during backpropagation (by setting
+`requires_grad=False`) is distinct from changing how a module behaves during the
+forward pass (e.g., turning off Dropout or freezing BatchNorm statistics via
+`.eval()`). Finetuning often requires managing both.
+
 - _How to train including the `self.backbone` parameters?_
 
-  Training including the `self.backbone` parameters is straightforward, it is
+  Training including the `self.backbone` parameters is straightforward; it is
   the default, analogously to training any other submodule.
 
 - _How to train excluding the `self.backbone` parameters?_
 
-  There are two approaches to train without the `self.backbone` parameters.
-  Either you mark them as _not-requiring-a-gradient_, or you do not pass
-  the `self.backbone` parameters to the optimizer at all.
+  To train without the `self.backbone` parameters, you should mark them as
+  _not-requiring-a-gradient_ by calling `self.backbone.requires_grad_(False)`.
+  This way, their gradient will not be computed, which considerably decreases
+  memory and computation requirements.
 
-  - To avoid computing the gradient of the `self.backbone` parameters, you can
-    call `self.backbone.requires_grad_(False)`. Optimizer correctly handles
-    parameters without a computed gradient, and it also properly handles dynamic
-    changes of `parameter.requires_grad` during training.
-  - To avoid passing the `self.backbone` parameters to the optimizer, you can
-    use for example `set(model.parameters()) - set(model.backbone.parameters())`
-    as the parameters given to the optimizer. However, if you ever need to
-    train the `self.backbone` parameters later, you need to construct a new
-    optimizer. Also, the gradient of the `self.backbone` parameters might
-    still be computed, which considerably increases required memory and
-    computation requirements.
+  Optimizer correctly handles parameters without a computed gradient, and it
+  also properly handles dynamic changes of `parameter.requires_grad` during
+  training, so it can be given `module.parameters()` including the parameters
+  without a gradient. However, if you want, you can explicitly filter these
+  parameters using
+  ```python
+  filter(lambda p: p.requires_grad, model.parameters())
+  ```
+  instead of just `model.parameters()`. Nevertheless, if you ever need to train
+  the `self.backbone` parameters later, you would need to construct a new
+  optimizer.
 
 - _How to run `self.backbone` in evaluation regime during training (i.e., with
-  frozen batch normalizations and without dropout)?_
+  frozen batch normalizations using running mean/variance, and without dropout)?_
 
-  The changes above do not influence whether `self.backbone` is run in training
-  or in evaluation mode; when the whole `module` is set to training/evaluation
-  mode, so is `self.backbone`.
+  The weight-freezing changes above do not influence whether `self.backbone` is
+  run in training or in evaluation mode; by default, when the whole `Model` is
+  set to training/evaluation mode, so is the `self.backbone`.
 
-  To always keep `self.backbone` in evaluation mode, the easiest is to overwrite
-  the `train` method of the `Module` class:
+  To always keep the `self.backbone` in evaluation mode, the easiest approach
+  is to overwrite the `train` method of the `torch.nn.Module` class:
   ```python
   class Model(torch.nn.Module):
       ...
@@ -320,24 +326,24 @@ class Model(torch.nn.Module):
 - _How to dynamically toggle both parameter training and training mode of the
   `self.backbone`?_
 
-  We can combine both parameter training toggle and training mode toggle for
-  example in the following way:
+  We can combine both the parameter training toggle and the training mode
+  toggle for example in the following way:
   ```python
   class Model(torch.nn.Module):
       def __init__(self, backbone: torch.nn.Module, args: argparse.Namespace) -> None:
-          super().init()
+          super().__init__()
           self.backbone = backbone
           self.backbone_trainable(True)  # or False, depending on what should be the default
           ...
 
       def backbone_trainable(self, mode: bool) -> None:
-          self.backbone_is_trainable = mode
           self.backbone.requires_grad_(mode)
           self.backbone.train(self.training and mode)
+          self._backbone_is_trainable = mode
 
       def train(self, mode: bool = True):
           super().train(mode)
-          self.backbone.train(mode and self.backbone_is_trainable)
+          self.backbone.train(mode and self._backbone_is_trainable)
           return self
   ```
 
@@ -350,7 +356,7 @@ class Model(torch.nn.Module):
       ...
       def train(self, mode: bool = True):
           super().train(mode)
-          self.backbone.train(mode and self.backbone_is_trainable)
+          self.backbone.train(mode and self._backbone_is_trainable)
           self.backbone.apply(lambda m: isinstance(m, torch.nn.BatchNorm2d) and m.eval())
           return self
   ```

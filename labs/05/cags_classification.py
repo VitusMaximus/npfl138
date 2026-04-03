@@ -6,7 +6,6 @@
 import argparse
 import os
 
-import numpy as np
 import timm
 import torch
 import torchmetrics
