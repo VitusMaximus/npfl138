@@ -179,3 +179,67 @@
   individual characters), and two sentence-level bidirectional RNNs (explaining
   the bidirectionality) with a residual connection. Where would you put the
   dropout layers? [10]
+
+#### Questions@:, Lecture 8 Questions
+- In the context of named entity recognition, describe how the BIO encoding
+  works and why it is used. [5]
+
+- Write down the dynamic programming algorithm for decoding a BIO-tag sequence,
+  including its asymptotic complexity. [10]
+
+- In the context of CTC loss, describe regular and extended labelings and
+  write down the algorithm for computing the log probability of a gold label
+  sequence $\boldsymbol y$. [10]
+
+- Describe how CTC predictions are performed using a beam-search. [5]
+
+- Draw the CBOW architecture from `word2vec`, including the sizes of the inputs
+  and the sizes of the outputs and used non-linearities. Also make sure to
+  explain how to obtain the final embeddings after training. [5]
+
+- Draw the SkipGram architecture from `word2vec`, including the sizes of the
+  inputs and the sizes of the outputs and used non-linearities. Also make sure
+  to explain how to obtain the final embeddings after training. [5]
+
+- Describe the hierarchical softmax used in `word2vec`. [5]
+
+- Describe the negative sampling proposed in `word2vec`, including
+  the choice of distribution of negative samples. [5]
+
+#### Questions@:, Lecture 9 Questions
+- Considering machine translation, draw a recurrent sequence-to-sequence
+  architecture without attention, both during training and during inference
+  (include embedding layers, recurrent cells, classification layers,
+  argmax/softmax). [5]
+
+- Considering machine translation, draw a recurrent sequence-to-sequence
+  architecture with attention, used during training (include embedding layers,
+  recurrent cells, attention, classification layers).
+  Then write down how exactly the attention is computed. [10]
+
+- Explain how word embeddings tying is used in a sequence-to-sequence
+  architecture, including the necessary scaling. [5]
+
+- Write down why subword units are used in text processing, and describe the BPE
+  algorithm for constructing a subword dictionary from a large corpus. [5]
+
+- Write down why subword units are used in text processing, and describe the
+  WordPieces algorithm for constructing a subword dictionary from a large
+  corpus. [5]
+
+- Pinpoint the differences between the BPE and WordPieces algorithms, both
+  during dictionary construction and during inference. [5]
+
+- Describe the Transformer encoder architecture, including the description of
+  self-attention (but you do not need to describe multi-head attention), FFN
+  and positions of LNs and dropouts. [10]
+
+- Write down the formula of Transformer self-attention assuming you get
+  sequence representation $\boldsymbol X \in \mathbb{R}^{n \times d}$, and then
+  describe multi-head self-attention in detail, including the dimensionality
+  of the individual heads. [10]
+
+- Describe the Transformer decoder architecture, including the description of
+  self-attention and masked self-attention (but you do not need to describe
+  multi-head attention), FFN and positions of LNs and dropouts. Also discuss the
+  difference between training and prediction regimes. [10]

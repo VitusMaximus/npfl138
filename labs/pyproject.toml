@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "npfl138"
-version = "2526.7.0"
+version = "2526.9.0"
 authors = [
   { name="Milan Straka", email="straka@ufal.mff.cuni.cz" },
 ]
@@ -22,6 +22,9 @@ dependencies = [
   "timm ~= 1.0.24",
   # Huggingface Transformers
   "transformers ~= 5.2.0",
+  # Used by torchaudio for CTC decoding
+  "ufal.flashlight-text ~= 0.0.7.1",
+  "ufal.kenlm ~= 26.4.1",
   # Gymnasium package including the pygame used for GUI
   "gymnasium ~= 1.2.3",
   "pygame-ce ~= 2.5.6",
