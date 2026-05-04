@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
+# 964bdfc8-60b0-4398-b837-7c2520532d17
+# 4b50a6fb-a4a6-4b30-9879-0b671f941a72
+# f5419161-0138-4909-8252-ba9794a63e53
 import argparse
 
 import torch
+import torch.nn as nn
 import torchmetrics
 
 import npfl138
@@ -17,7 +21,7 @@ parser.add_argument("--max_sentences", default=None, type=int, help="Maximum num
 parser.add_argument("--recodex", default=False, action="store_true", help="Evaluation in ReCodEx.")
 parser.add_argument("--rnn_dim", default=64, type=int, help="RNN layer dimension.")
 parser.add_argument("--seed", default=41, type=int, help="Random seed.")
-parser.add_argument("--show_results_every_batch", default=10, type=int, help="Show results every given batch.")
+parser.add_argument("--show_results_every_batch", default=100, type=int, help="Show results every given batch.")
 parser.add_argument("--tie_embeddings", default=False, action="store_true", help="Tie target embeddings.")
 parser.add_argument("--threads", default=1, type=int, help="Maximum number of threads to use.")
 # If you add more arguments, ReCodEx will keep them with your default values.
@@ -32,38 +36,57 @@ class WithAttention(torch.nn.Module):
         # TODO: Define
         # - `self._project_encoder_layer` as a linear layer with `cell.hidden_size` inputs
         #   and `attention_dim` outputs.
+        self._project_encoder_layer = nn.Linear(cell.hidden_size,attention_dim)
         # - `self._project_decoder_layer` as a linear layer with `cell.hidden_size` inputs
         #   and `attention_dim` outputs
+        self._project_decoder_layer = nn.Linear(cell.hidden_size,attention_dim)
         # - `self._output_layer` as a linear layer with `attention_dim` inputs and 1 output
-        ...
+        self._output_layer = nn.Linear(attention_dim,1)
 
-    def setup_memory(self, encoded):
+    def setup_memory(self, encoded:torch.Tensor):
         self._encoded = encoded
         # TODO: Pass the `encoded` through the `self._project_encoder_layer` and store
         # the result as `self._encoded_projected`. Note that the padding positions in
         # `encoded` are indicated by an all-zeros vector.
-        self._encoded_projected = ...
+        self._encoded_projected = self._project_encoder_layer(encoded)
+        sums = encoded.sum(-1)
+        lens = (sums != 0).sum(-1)
+        self.pad_idx = torch.maximum(torch.zeros_like(lens),lens-1)
+
 
     def forward(self, inputs, states):
+        N = inputs.shape[0]
         # TODO: Compute the attention.
         # - According to the definition, we need to project the encoder states, but we have
         #   already done that in `setup_memory`, so we just take `self._encoded_projected`.
+        enc_proj = self._encoded_projected #V@h_j
         # - Compute projected decoder state by passing the given state through the `self._project_decoder_layer`.
+        st_proj = self._project_decoder_layer(states) #W@ si-1 ???
         # - Sum the two projections. However, you have to deal with the fact that the first projection has
         #   shape `[batch_size, input_sequence_len, attention_dim]`, while the second projection has
         #   shape `[batch_size, attention_dim]`. The best solution is capable of creating the sum
         #   directly without creating any intermediate tensor.
+        summed = enc_proj + st_proj[:,torch.newaxis,:]
         # - Pass the sum through the `torch.tanh` and then through the `self._output_layer`.
+        summed = nn.functional.tanh(summed)
+        out = self._output_layer(summed)
         # - The logits corresponding to the padding positions in `self._encoded_projected`
         #   should be set to -1e9 so that they do not contribute to the attention.
+        mask = self._encoded.sum(-1) == 0
+        out[mask] = -1e9
+
         # - Then, run the softmax activation, generating `weights`.
+        weights = nn.functional.softmax(out,1)
         # - Multiply the original (non-projected) encoder states `self._encoded` with `weights` and sum
         #   the result in the axis corresponding to characters, generating `attention`. Therefore,
         #   `attention` is a fixed-size representation for every batch element, independently on
         #   how many characters the corresponding input word had.
+        x = (weights * self._encoded).sum(1)
         # - Finally, concatenate `inputs` and `attention` (in this order), and call the `self._cell`
         #   on this concatenated input and the `states`, returning the result.
-        return ...
+        conc = torch.concat((inputs,x),-1)
+        state = self._cell(conc,states)
+        return state
 
 
 class Model(npfl138.TrainableModule):
@@ -75,30 +98,32 @@ class Model(npfl138.TrainableModule):
         # TODO(lemmatizer_noattn): Define
         # - `self._source_embedding` as an embedding layer of source characters into `args.cle_dim` dimensions
         # - `self._source_rnn` as a bidirectional GRU with `args.rnn_dim` units processing embedded source chars
-        self._source_embedding = ...
-        self._source_rnn = ...
+        self._source_embedding = torch.nn.Embedding(len(self._source_vocab), args.cle_dim,padding_idx=MorphoDataset.PAD)
+        self._source_rnn = torch.nn.GRU(args.cle_dim, args.rnn_dim, bidirectional=True,batch_first=True)
 
         # TODO: Define
         # - `self._target_rnn_cell` as a `WithAttention` with `attention_dim=args.rnn_dim`, employing as the
         #   underlying cell the `torch.nn.GRUCell` with `args.rnn_dim`. The cell will process concatenated
         #   target character embeddings and the result of the attention mechanism.
-        self._target_rnn_cell = ...
+        self._target_rnn_cell = WithAttention(torch.nn.GRUCell(args.rnn_dim+args.cle_dim,args.rnn_dim),args.rnn_dim)
 
         # TODO(lemmatizer_noattn): Then define
         # - `self._target_output_layer` as a linear layer into as many outputs as there are unique target chars
-        self._target_output_layer = ...
+        self._target_output_layer = torch.nn.Linear(args.rnn_dim,len(self._target_vocab))
 
         if not args.tie_embeddings:
-            # TODO(lemmatizer_noattn): Define the `self._target_embedding` as an embedding layer of the target
+            # TODO: Define the `self._target_embedding` as an embedding layer of the target
             # characters into `args.cle_dim` dimensions.
-            self._target_embedding = ...
+            self._target_embedding = torch.nn.Embedding(len(self._target_vocab),args.cle_dim,padding_idx=MorphoDataset.PAD)
         else:
             assert args.cle_dim == args.rnn_dim, "When tying embeddings, cle_dim and rnn_dim must match."
-            # TODO(lemmatizer_noattn): Create a function `self._target_embedding` computing the embedding of given
+            # TODO: Create a function `self._target_embedding` computing the embedding of given
             # target characters. When called, use `torch.nn.functional.embedding` to suitably
             # index the shared embedding matrix `self._target_output_layer.weight`
             # multiplied by the square root of `args.rnn_dim`.
-            self._target_embedding = ...
+            def embed_target(indices:torch.Tensor):
+                return torch.nn.functional.embedding(indices, self._target_output_layer.weight,padding_idx=MorphoDataset.PAD)  * (args.rnn_dim**0.5)
+            self._target_embedding = embed_target
 
         self._show_results_every_batch = args.show_results_every_batch
         self._batches = 0
@@ -112,37 +137,56 @@ class Model(npfl138.TrainableModule):
 
     def encoder(self, words: torch.Tensor) -> torch.Tensor:
         # TODO(lemmatizer_noattn): Embed the inputs using `self._source_embedding`.
-
+        embeded = self._source_embedding(words)
         # TODO: Run the `self._source_rnn` on the embedded sequences, correctly handling
         # padding. Newly, the result should be encoding of every sequence element,
         # summing results in the opposite directions.
-        return ...
+        lens = (words !=MorphoDataset.PAD).sum(-1).cpu()
+        padded = torch.nn.utils.rnn.pack_padded_sequence(embeded,lens,batch_first=True,enforce_sorted=False)
+        hidden, _ = self._source_rnn(padded)
+        hidden, _ = nn.utils.rnn.pad_packed_sequence(hidden,True,MorphoDataset.PAD)
+        h = hidden.shape[-1] // 2
+        summed = hidden[:,:,:h] + hidden[:,:,h:]
+        return summed
 
     def decoder_training(self, encoded: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
         # TODO(lemmatizer_noattn): Generate inputs for the decoder, which are obtained from `targets` by
         # - prepending `MorphoDataset.BOW` as the first element of every batch example,
         # - dropping the last element of `targets`.
+        lens = (targets != MorphoDataset.PAD).sum(-1)
+        mlens = torch.where(lens!=0,lens-1,-1).cpu()
+        targets[torch.arange(0,targets.shape[0]),mlens] = MorphoDataset.PAD
+        targets = targets.roll(1,-1)
+        targets[:,0] = MorphoDataset.BOW
 
         # TODO: Pre-compute the projected encoder states in the attention by calling
         # the `setup_memory` of the `self._target_rnn_cell` on the `encoded` input.
-        ...
+        self._target_rnn_cell.setup_memory(encoded)
 
         # TODO: Process the generated inputs by
         # - the `self._target_embedding` layer to obtain embeddings,
+        embeded = self._target_embedding(targets)
         # - repeatedly call the `self._target_rnn_cell` on the sequence of embedded
         #   inputs and the previous states, starting with state `encoded[:, 0]`,
         #   obtaining outputs for all target hidden states,
+        states = encoded[:,0]
+        results = []
+        for i in range(embeded.shape[1]):
+            states = self._target_rnn_cell(embeded[:,i,:],states)
+            results.append(states)
         # - the `self._target_output_layer` to obtain logits,
+        results = torch.stack(results,-2)
+        out = self._target_output_layer(results)
         # - finally, permute dimensions so that the logits are in the dimension 1,
         # and return the result.
-        return ...
+        return out.permute(0,2,1)
 
     def decoder_prediction(self, encoded: torch.Tensor, max_length: int) -> torch.Tensor:
         batch_size = encoded.shape[0]
 
         # TODO(decoder_training): Pre-compute the projected encoder states in the attention by calling
         # the `setup_memory` of the `self._target_rnn_cell` on the `encoded` input.
-        ...
+        self._target_rnn_cell.setup_memory(encoded)
 
         # TODO: Define the following variables, that we will use in the cycle:
         # - `index`: the time index, initialized to 0;
@@ -150,11 +194,11 @@ class Model(npfl138.TrainableModule):
         # - `states`: initial RNN state from the encoder, i.e., `encoded[:, 0]`.
         # - `results`: an empty list, where generated outputs will be stored;
         # - `result_lengths`: a tensor of shape `[batch_size]` filled with `max_length`,
-        index = ...
-        inputs = ...
-        states = ...
-        results = ...
-        result_lengths = ...
+        index = 0
+        inputs = torch.zeros((batch_size),dtype=torch.int32) + MorphoDataset.BOW
+        states = encoded[:,0]
+        results = []
+        result_lengths = torch.zeros((batch_size)) + max_length
 
         while index < max_length and torch.any(result_lengths == max_length):
             # TODO(lemmatizer_noattn):
@@ -164,7 +208,16 @@ class Model(npfl138.TrainableModule):
             #   store as both a new `hidden` and a new `states`.
             # - Pass the outputs through the `self._target_output_layer`.
             # - Generate the most probable prediction for every batch example.
-            predictions = ...
+            embeded = self._target_embedding(inputs)
+            # - Then call `self._target_rnn_cell` using two arguments, the embedded `inputs`
+            #   and the current `states`. The call returns a single tensor, which you should
+            #   store as both a new `hidden` and a new `states`.
+            hidden = self._target_rnn_cell(embeded,states)
+            states = hidden
+            # - Pass the outputs through the `self._target_output_layer`.
+            # - Generate the most probable prediction for every batch example.
+            logits = self._target_output_layer(hidden)
+            predictions = torch.argmax(logits,-1)
 
             # Store the predictions in the `results` and update the `result_lengths`
             # by setting it to current `index` if an EOW was generated for the first time.
@@ -174,8 +227,8 @@ class Model(npfl138.TrainableModule):
             # TODO(lemmatizer_noattn): Finally,
             # - set `inputs` to the `predictions`,
             # - increment the `index` by one.
-            inputs = ...
-            index = ...
+            inputs = predictions
+            index += 1 
 
         results = torch.stack(results, dim=1)
         return results
@@ -220,7 +273,7 @@ class TrainableDataset(npfl138.TransformedDataset):
 
     def transform(self, example):
         # TODO(lemmatizer_noattn): Return `example["words"]` as inputs and `example["lemmas"]` as targets.
-        raise NotImplementedError()
+        return example["words"], example["lemmas"]
 
     def collate(self, batch):
         # Construct a single batch, where `batch` is a list of examples generated by `transform`.
@@ -228,14 +281,19 @@ class TrainableDataset(npfl138.TransformedDataset):
         # TODO(lemmatizer_noattn): The `words` are a list of list of strings. Flatten it into a single list of strings
         # and then map the characters to their indices using the `self.dataset.words.char_vocab` vocabulary.
         # Then create a tensor by padding the words to the length of the longest one in the batch.
-        words = ...
-        # TODO(lemmatizer_noattn): Process `lemmas` analogously to `words`, but use `self.dataset.lemmas.char_vocab`,
+        words = [torch.tensor(self.dataset.words.char_vocab.indices(list(word))) for sentence in words for word in sentence]
+        # TODO: Process `lemmas` analogously to `words`, but use `self.dataset.lemmas.char_vocab`,
         # and additionally, append `MorphoDataset.EOW` to the end of each lemma.
-        lemmas = ...
-        # TODO(lemmatizer_noattn): Return a pair (inputs, targets), where
+        train = len(lemmas) > 0
+        if len(lemmas[0])  == 0:
+            pass
+        lemmas = [torch.tensor(self.dataset.lemmas.char_vocab.indices(list(lemma)) + [MorphoDataset.EOW],dtype=torch.int32) for sentence in lemmas for lemma in sentence]
+        # TODO: Return a pair (inputs, targets), where
         # - the inputs are words during inference and (words, lemmas) pair during training;
         # - the targets are lemmas.
-        return ..., ...
+        words = torch.nn.utils.rnn.pad_sequence(words, batch_first=True,padding_value=MorphoDataset.PAD)
+        lemmas = torch.nn.utils.rnn.pad_sequence(lemmas, batch_first=True,padding_value=MorphoDataset.PAD)    
+        return (words,lemmas) if self._training else words, lemmas.to(torch.long)
 
 
 def main(args: argparse.Namespace) -> dict[str, float]:
@@ -254,15 +312,15 @@ def main(args: argparse.Namespace) -> dict[str, float]:
     model = Model(args, morpho.train)
 
     model.configure(
-        # TODO(lemmatizer_noattn): Create the Adam optimizer.
-        optimizer=...,
-        # TODO(lemmatizer_noattn): Use the usual `torch.nn.CrossEntropyLoss` loss function. Additionally,
+        # TODO: Create the Adam optimizer.
+        optimizer=torch.optim.Adam(model.parameters()),
+        # TODO: Use the usual `torch.nn.CrossEntropyLoss` loss function. Additionally,
         # pass `ignore_index=morpho.PAD` to the constructor so that the padded
         # tags are ignored during the loss computation.
-        loss=...,
-        # TODO(lemmatizer_noattn): Create a `torchmetrics.MeanMetric()` metric, where we will manually
+        loss=torch.nn.CrossEntropyLoss(ignore_index=MorphoDataset.PAD),
+        # TODO: Create a `torchmetrics.MeanMetric()` metric, where we will manually
         # collect lemmatization accuracy.
-        metrics={"accuracy": ...},
+        metrics={"accuracy": torchmetrics.MeanMetric()},
         logdir=npfl138.format_logdir("logs/{file-}{timestamp}{-config}", **vars(args)),
     )
 

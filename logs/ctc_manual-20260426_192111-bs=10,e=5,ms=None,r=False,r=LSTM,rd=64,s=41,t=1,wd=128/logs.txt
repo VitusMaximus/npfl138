@@ -1,0 +1,1 @@
+Epoch 1/5 58.0s loss=2.4773 edit_distance=0.5981 dev:loss=1.6755 dev:edit_distance=0.5685
