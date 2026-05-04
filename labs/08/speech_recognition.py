@@ -115,7 +115,7 @@ class Model(npfl138.TrainableModule):
         self.metrics["edit_distance"].update(predictions, char_ids)
         return self.metrics
 
-    def predict_step(self, xs, as_numpy=True):
+    def predict_step(self, xs):
         with torch.no_grad():
             # Perform constrained decoding.
             for (mfccs, pred_lens), _ in xs:
