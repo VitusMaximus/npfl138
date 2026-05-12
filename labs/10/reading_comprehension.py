@@ -14,10 +14,17 @@ from npfl138.datasets.reading_comprehension_dataset import ReadingComprehensionD
 # TODO: Define reasonable defaults and optionally more parameters.
 # Also, you can set the number of threads to 0 to use all your CPU cores.
 parser = argparse.ArgumentParser()
-parser.add_argument("--batch_size", default=..., type=int, help="Batch size.")
-parser.add_argument("--epochs", default=..., type=int, help="Number of epochs.")
+parser.add_argument("--batch_size", default=64, type=int, help="Batch size.")
+parser.add_argument("--epochs", default=20, type=int, help="Number of epochs.")
 parser.add_argument("--seed", default=42, type=int, help="Random seed.")
 parser.add_argument("--threads", default=1, type=int, help="Maximum number of threads to use.")
+
+
+class Model(torch.nn.Module):
+    def __init__(self, tokenizer: transformers.AutoTokenizer, robeczech: transformers.AutoModel) -> None:
+        super().__init__()
+        self.tokenizer = tokenizer
+        self.robeczech = robeczech
 
 
 def main(args: argparse.Namespace) -> None:
@@ -36,7 +43,7 @@ def main(args: argparse.Namespace) -> None:
     dataset = ReadingComprehensionDataset()
 
     # TODO: Create the model and train it.
-    model = ...
+    model = Model(tokenizer, robeczech)
 
     # Generate test set annotations, but in `logdir` to allow parallel execution.
     os.makedirs(logdir, exist_ok=True)
