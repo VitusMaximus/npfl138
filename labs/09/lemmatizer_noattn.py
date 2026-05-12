@@ -23,6 +23,7 @@ parser.add_argument("--threads", default=1, type=int, help="Maximum number of th
 # If you add more arguments, ReCodEx will keep them with your default values.
 
 
+
 class Model(npfl138.TrainableModule):
     def __init__(self, args: argparse.Namespace, train: MorphoDataset.Dataset) -> None:
         super().__init__()

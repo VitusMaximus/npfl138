@@ -27,6 +27,7 @@ parser.add_argument("--we_dim", default=64, type=int, help="Word embedding dimen
 # If you add more arguments, ReCodEx will keep them with your default values.
 
 
+
 class Model(npfl138.TrainableModule):
     class FFN(torch.nn.Module):
         def __init__(self, dim: int, expansion: int) -> None:
@@ -257,7 +258,6 @@ def main(args: argparse.Namespace) -> dict[str, float]:
     # Prepare the data for training.
     train = TrainableDataset(morpho.train).dataloader(batch_size=args.batch_size, shuffle=True)
     dev = TrainableDataset(morpho.dev).dataloader(batch_size=args.batch_size)
-
     # Create the model and train.
     model = Model(args, morpho.train)
 
