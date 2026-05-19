@@ -17,9 +17,9 @@ from npfl138.datasets.homr_dataset import HOMRDataset
 # Also, you can set the number of threads to 0 to use all your CPU cores.
 parser = argparse.ArgumentParser()
 parser.add_argument("--batch_size", default=32, type=int, help="Batch size.")
-parser.add_argument("--epochs", default=10, type=int, help="Number of epochs.")
+parser.add_argument("--epochs", default=30, type=int, help="Number of epochs.")
 parser.add_argument("--seed", default=42, type=int, help="Random seed.")
-parser.add_argument("--threads", default=1, type=int, help="Maximum number of threads to use.")
+parser.add_argument("--threads", default=0, type=int, help="Maximum number of threads to use.")
 
 parser.add_argument("--lr", default=1e-4, type=float, help="Learning rate.")
 
@@ -184,7 +184,7 @@ def main(args: argparse.Namespace) -> None:
     os.makedirs(logdir, exist_ok=True)
     with open(os.path.join(logdir, "homr_competition.txt"), "w", encoding="utf-8") as predictions_file:
         # TODO: Predict the sequences of recognized marks.
-        predictions = ...
+        predictions = model.predict(test_loader)
 
         for sequence in predictions:
             print(" ".join(HOMRDataset.MARKS_VOCAB.strings(sequence)), file=predictions_file)
