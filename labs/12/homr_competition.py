@@ -70,7 +70,10 @@ class Model(npfl138.TrainableModule):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         self.cnn = torch.nn.Sequential(
-            torch.nn.Conv2d(1, 32, kernel_size=3, stride=2, padding=1),
+            torch.nn.Conv2d(1, 16, kernel_size=3, stride=2, padding=1),
+            torch.nn.BatchNorm2d(16),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(16, 32, kernel_size=3, stride=2, padding=1),
             torch.nn.BatchNorm2d(32),
             torch.nn.ReLU(),
             torch.nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1),
@@ -79,20 +82,16 @@ class Model(npfl138.TrainableModule):
             torch.nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1),
             torch.nn.BatchNorm2d(128),
             torch.nn.ReLU(),
-            torch.nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=1),
-            torch.nn.BatchNorm2d(256),
-            torch.nn.ReLU(),
         )
 
-        self.rnn = torch.nn.GRU(input_size=256, hidden_size=128, num_layers=2, batch_first=True, bidirectional=True)
-        self.classifier = torch.nn.Linear(128 * 2, HOMRDataset.MARKS)
+        self.rnn = torch.nn.GRU(input_size=128, hidden_size=64, num_layers=2, batch_first=True, bidirectional=True, dropout=0.2)
+        self.classifier = torch.nn.Linear(64 * 2, HOMRDataset.MARKS)
 
         self.to(self.device)
 
         
     def forward(self, images: torch.Tensor) -> torch.Tensor:
         x:torch.Tensor = self.cnn(images)
-        #print("CNN output shape:", x.shape)
         x = x.mean(dim=2)  # Global average pooling over height dimension -> (batch_size, channels, width)
         x = x.permute(0, 2, 1)   # Reshape to (batch_size, width, channels)
 
@@ -112,6 +111,7 @@ class Model(npfl138.TrainableModule):
             input_lengths.to(y_pred.device),
             target_lengths.to(y_pred.device),
             blank=HOMRDataset.MARKS_VOCAB.PAD,
+            zero_infinity=True,
         )
 
     def ctc_decode(self, y_pred: torch.Tensor) -> list[torch.Tensor]:
