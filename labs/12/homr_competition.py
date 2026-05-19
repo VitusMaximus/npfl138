@@ -21,7 +21,7 @@ parser.add_argument("--epochs", default=10, type=int, help="Number of epochs.")
 parser.add_argument("--seed", default=42, type=int, help="Random seed.")
 parser.add_argument("--threads", default=1, type=int, help="Maximum number of threads to use.")
 
-parser.add_argument("--lr", default=1e-3, type=float, help="Learning rate.")
+parser.add_argument("--lr", default=1e-4, type=float, help="Learning rate.")
 
 
 class TrainableDataset(torch.utils.data.Dataset):
