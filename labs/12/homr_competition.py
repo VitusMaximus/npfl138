@@ -180,9 +180,16 @@ def main(args: argparse.Namespace) -> None:
 
     # TODO: Create the model and train it.
     model = Model()
-    
+
+    optimizer = torch.optim.Adam(model.parameters(), args.lr)
+
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+        optimizer, T_max=max(1, args.epochs * len(train_loader)), eta_min=1e-6
+    )
+
     model.configure(
-        optimizer=torch.optim.Adam(model.parameters(), args.lr),
+        optimizer=optimizer,
+        scheduler=scheduler,
         metrics={"edit_distance": HOMRDataset.EditDistanceMetric(ignore_index=HOMRDataset.MARKS_VOCAB.PAD) },
     )
 
