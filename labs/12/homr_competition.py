@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+#f5419161-0138-4909-8252-ba9794a63e53
+#4b50a6fb-a4a6-4b30-9879-0b671f941a72
+#964bdfc8-60b0-4398-b837-7c2520532d17
+
 import argparse
 import os
 
@@ -17,7 +21,7 @@ from npfl138.datasets.homr_dataset import HOMRDataset
 # Also, you can set the number of threads to 0 to use all your CPU cores.
 parser = argparse.ArgumentParser()
 parser.add_argument("--batch_size", default=32, type=int, help="Batch size.")
-parser.add_argument("--epochs", default=30, type=int, help="Number of epochs.")
+parser.add_argument("--epochs", default=1, type=int, help="Number of epochs.")
 parser.add_argument("--seed", default=42, type=int, help="Random seed.")
 parser.add_argument("--threads", default=0, type=int, help="Maximum number of threads to use.")
 
@@ -142,6 +146,10 @@ class Model(npfl138.TrainableModule):
         gold_str = [HOMRDataset.MARKS_VOCAB.strings(s) for s in gold_ids]
         self.metrics["edit_distance"].update(pred_str, gold_str)
         return self.metrics
+    
+    def predict_step(self, xs):
+        with torch.no_grad():
+            yield from self.ctc_decode(self.forward(xs[0].to(self.device)))
         
     
 
