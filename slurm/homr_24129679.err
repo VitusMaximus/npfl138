@@ -1,0 +1,4 @@
+File /__w/audio/audio/pytorch/audio/src/libtorchaudio/cuctc/src/ctc_prefix_decoder.cpp Line 346 cudaMemcpy2DAsync( clen, sizeof(int) * inter_data->beam, inter_data->clen[(step % 2) ^ 1].data_ptr(), sizeof(int) * inter_data->ldbeam, sizeof(int) * inter_data->beam, inter_data->bs, cudaMemcpyDeviceToHost, inter_data->stream) returned cudaErrorIllegalAddress.
+/home/babkavi/.pyenv/versions/3.11.15/lib/python3.11/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '
+/var/spool/slurm/d/job24129679/slurm_script: line 15: 395765 Aborted                 (core dumped) python -u labs/12/homr_competition.py --epochs=150 --threads=0

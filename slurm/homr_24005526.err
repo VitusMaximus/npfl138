@@ -1,0 +1,24 @@
+Downloading homr.train.tfrecord...
+  0%|          | 0.00/419M [00:00<?, ?B/s]  2%|▏         | 8.12M/419M [00:00<00:05, 84.7MB/s]  4%|▍         | 16.2M/419M [00:00<00:04, 84.5MB/s]  6%|▌         | 25.1M/419M [00:00<00:04, 88.3MB/s]  9%|▊         | 36.4M/419M [00:00<00:04, 99.7MB/s] 11%|█         | 46.0M/419M [00:00<00:03, 99.0MB/s] 14%|█▎        | 56.6M/419M [00:00<00:03, 103MB/s]  16%|█▋        | 68.6M/419M [00:00<00:03, 110MB/s] 19%|█▉        | 80.8M/419M [00:00<00:03, 115MB/s] 22%|██▏       | 94.0M/419M [00:00<00:02, 122MB/s] 26%|██▌       | 107M/419M [00:01<00:02, 127MB/s]  29%|██▉       | 121M/419M [00:01<00:02, 133MB/s] 32%|███▏      | 134M/419M [00:01<00:02, 133MB/s] 35%|███▌      | 147M/419M [00:01<00:02, 123MB/s] 38%|███▊      | 159M/419M [00:01<00:02, 122MB/s] 41%|████      | 171M/419M [00:01<00:02, 123MB/s] 44%|████▍     | 184M/419M [00:01<00:01, 128MB/s] 47%|████▋     | 197M/419M [00:01<00:01, 129MB/s] 50%|█████     | 211M/419M [00:01<00:01, 135MB/s] 54%|█████▎    | 224M/419M [00:01<00:01, 134MB/s] 57%|█████▋    | 238M/419M [00:02<00:01, 137MB/s] 60%|██████    | 252M/419M [00:02<00:01, 139MB/s] 63%|██████▎   | 266M/419M [00:02<00:01, 134MB/s] 67%|██████▋   | 278M/419M [00:02<00:01, 127MB/s] 70%|██████▉   | 291M/419M [00:02<00:01, 128MB/s] 73%|███████▎  | 304M/419M [00:02<00:01, 117MB/s] 76%|███████▌  | 316M/419M [00:02<00:00, 120MB/s] 79%|███████▉  | 330M/419M [00:02<00:00, 127MB/s] 82%|████████▏ | 343M/419M [00:02<00:00, 128MB/s] 85%|████████▍ | 355M/419M [00:03<00:00, 128MB/s] 88%|████████▊ | 368M/419M [00:03<00:00, 129MB/s] 91%|█████████ | 380M/419M [00:03<00:00, 130MB/s] 94%|█████████▍| 393M/419M [00:03<00:00, 126MB/s] 97%|█████████▋| 405M/419M [00:03<00:00, 123MB/s]100%|█████████▉| 416M/419M [00:03<00:00, 119MB/s]100%|██████████| 419M/419M [00:03<00:00, 122MB/s]
+Downloading homr.dev.tfrecord...
+  0%|          | 0.00/40.9M [00:00<?, ?B/s] 20%|█▉        | 8.12M/40.9M [00:00<00:00, 84.1MB/s] 40%|████      | 16.5M/40.9M [00:00<00:00, 85.5MB/s] 65%|██████▍   | 26.5M/40.9M [00:00<00:00, 94.1MB/s] 87%|████████▋ | 35.6M/40.9M [00:00<00:00, 94.3MB/s]100%|██████████| 40.9M/40.9M [00:00<00:00, 92.5MB/s]
+Downloading homr.test.tfrecord...
+  0%|          | 0.00/40.8M [00:00<?, ?B/s] 22%|██▏       | 8.88M/40.8M [00:00<00:00, 93.0MB/s] 44%|████▍     | 18.1M/40.8M [00:00<00:00, 94.3MB/s] 70%|███████   | 28.6M/40.8M [00:00<00:00, 101MB/s]  97%|█████████▋| 39.6M/40.8M [00:00<00:00, 107MB/s]100%|██████████| 40.8M/40.8M [00:00<00:00, 103MB/s]
+Traceback (most recent call last):
+  File "/home/babkavi/npfl138/labs/12/homr_competition.py", line 195, in <module>
+    main(main_args)
+  File "/home/babkavi/npfl138/labs/12/homr_competition.py", line 189, in main
+    for sequence in predictions:
+  File "/home/babkavi/npfl138/VENV_DIR/lib/python3.11/site-packages/npfl138/trainable_module.py", line 561, in predict
+    y = self.predict_step(xs)
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/babkavi/npfl138/VENV_DIR/lib/python3.11/site-packages/npfl138/trainable_module.py", line 585, in predict_step
+    return self(*xs)
+           ^^^^^^^^^
+  File "/home/babkavi/npfl138/VENV_DIR/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/babkavi/npfl138/VENV_DIR/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1787, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: Model.forward() takes 2 positional arguments but 3 were given
