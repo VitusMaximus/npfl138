@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
+# 964bdfc8-60b0-4398-b837-7c2520532d17
+# 4b50a6fb-a4a6-4b30-9879-0b671f941a72
+# f5419161-0138-4909-8252-ba9794a63e53
 import argparse
 
 import torch
 import torchmetrics
+import torch.nn as nn
 
 import npfl138
 npfl138.require_version("2526.12")
@@ -47,7 +51,15 @@ class GAN(npfl138.TrainableModule):
         #   and sigmoid activation;
         # - uses `torch.nn.Unflatten` to reshape the output to `[MNIST.C, MNIST.H, MNIST.W]`.
         # You can use both the lazy linear layers or the regular linear layers.
-        self.generator = ...
+        gen:list[nn.Module] = []
+        self.S = MNIST.H * MNIST.W * MNIST.C
+        for g in args.generator_layers:
+            gen.append(nn.LazyLinear(g))
+            gen.append(nn.ReLU())
+        gen.append(nn.LazyLinear(self.S))
+        gen.append(nn.Sigmoid())
+        gen.append(nn.Unflatten(1,(MNIST.C,MNIST.H,MNIST.W)))
+        self.generator = nn.Sequential(*gen)
 
         # TODO: Define `self.discriminator` as a `torch.nn.Sequential`, which
         # - takes input images with shape `[MNIST.C, MNIST.H, MNIST.W]`;
@@ -55,7 +67,13 @@ class GAN(npfl138.TrainableModule):
         # - applies `len(args.discriminator_layers)` linear layers with ReLU activation,
         #   i-th layer with `args.discriminator_layers[i]` units;
         # - applies an output linear layer with one output and a sigmoid activation function.
-        self.discriminator = ...
+        dis:list[nn.Module] = [nn.Flatten()]
+        for d in args.discriminator_layers:
+            dis.append(nn.LazyLinear(d))
+            dis.append(nn.ReLU())
+        dis.append(nn.LazyLinear(1))
+        dis.append(nn.Sigmoid())
+        self.discriminator = nn.Sequential(*dis)
 
     def train_step(self, xs: tuple[torch.Tensor], y: torch.Tensor) -> dict[str, torch.Tensor]:
         images = xs[0]
@@ -68,7 +86,13 @@ class GAN(npfl138.TrainableModule):
         #   even if not updating its parameters, we want to perform possible BatchNorm in it);
         # - compute `generator_loss` using `self.loss`, with ones as target labels.
         # Then, perform a step of the generator optimizer stored in `self.optimizer["generator"]`.
-        ...
+        self.optimizer["generator"].zero_grad()
+        latent = self._z_prior().sample([images.shape[0]])
+        generated = self.generator(latent)
+        dis = self.discriminator(generated)
+        generator_loss = self.loss(dis, torch.ones_like(dis))
+        generator_loss.backward()
+        self.optimizer["generator"].step()
 
         # TODO: Train the discriminator:
         # - first run the discriminator on `images`, storing the results in `discriminated_real`;
@@ -79,12 +103,17 @@ class GAN(npfl138.TrainableModule):
         #   - `self.loss` on `discriminated_real` with suitable targets,
         #   - `self.loss` on `discriminated_fake` with suitable targets.
         # Then, perform a step of the discriminator optimizer stored in `self.optimizer["discriminator"]`.
-        ...
-
+        self.optimizer["discriminator"].zero_grad()
+        discriminated_real = self.discriminator(images)
+        discriminated_fake = self.discriminator(generated.detach())
+        discriminator_loss = self.loss(discriminated_real, torch.ones_like(discriminated_real)) + self.loss(discriminated_fake, torch.zeros_like(discriminated_fake))
+        discriminator_loss.backward()
+        self.optimizer["discriminator"].step()
         # TODO: Update the discriminator accuracy metric -- call the
         # `self.metrics["discriminator_accuracy"].update` twice, with the same
         # arguments the `self.loss` was called during discriminator loss computation.
-        ...
+        self.metrics["discriminator_accuracy"].update(discriminated_real, torch.ones_like(discriminated_real))
+        self.metrics["discriminator_accuracy"].update(discriminated_fake, torch.zeros_like(discriminated_fake))
 
         # Track the losses and return them together with the metrics.
         self.track_loss({"discriminator_loss": discriminator_loss, "generator_loss": generator_loss})
@@ -135,11 +164,11 @@ def main(args: argparse.Namespace) -> dict[str, float]:
     # and the loss function and metric for the discriminator.
     model.configure(
         optimizer={
-            "discriminator": ...,
-            "generator": ...,
+            "discriminator": torch.optim.Adam(model.discriminator.parameters()),
+            "generator": torch.optim.Adam(model.generator.parameters()),
         },
-        loss=...,
-        metrics={"discriminator_accuracy": ...},
+        loss=torch.nn.BCELoss(),
+        metrics={"discriminator_accuracy": torchmetrics.Accuracy("binary")},
         logdir=npfl138.format_logdir("logs/{file-}{timestamp}{-config}", **vars(args)),
     )
 
