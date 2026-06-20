@@ -227,8 +227,8 @@ class TrainableModule(torch.nn.Module):
         if module is not None:
             self.forward = self._wrapped_module_forward
 
-    def _wrapped_module_forward(self, inputs):
-        return self.module(inputs)
+    def _wrapped_module_forward(self, *args, **kwargs):
+        return self.module(*args, **kwargs)
 
     def configure(
         self,
@@ -553,7 +553,6 @@ class TrainableModule(torch.nn.Module):
         assert self.device is not None, "No device has been set for the TrainableModule, run configure first."
 
         predict_step_is_generator = inspect.isgeneratorfunction(self.predict_step)
-
         self.eval()
         for batch in ProgressLogger(dataloader, "Prediction", console):
             xs = validate_batch_input(batch, with_labels=data_with_labels)
@@ -572,7 +571,8 @@ class TrainableModule(torch.nn.Module):
         items by [unpack_batch][npfl138.TrainableModule.unpack_batch]), or, if `predict_step`
         is a generator function, an iterable of individual predicted items (i.e., an unpacked batch;
         in this case, calls to [predict][npfl138.TrainableModule.predict] with `whole_batches=True`
-        and to [predict_tensor][npfl138.TrainableModule.predict_tensor] raise an error).
+        and to [predict_tensor][npfl138.TrainableModule.predict_tensor] construct batches by stacking
+        individual items produced by `predict_step`).
 
         Parameters:
           xs: The input batch to the model, either a single tensor or a tensor structure.

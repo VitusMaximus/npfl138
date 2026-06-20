@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "npfl138"
-version = "2526.12.0"
+version = "2526.14.0"
 authors = [
   { name="Milan Straka", email="straka@ufal.mff.cuni.cz" },
 ]
@@ -25,6 +25,8 @@ dependencies = [
   # Used by torchaudio for CTC decoding
   "ufal.flashlight-text ~= 0.0.7.1",
   "ufal.kenlm ~= 26.4.1",
+  # Support for loading and saving sound files.
+  "soundfile ~= 0.13.1",
   # Gymnasium package including the pygame used for GUI
   "gymnasium ~= 1.2.3",
   "pygame-ce ~= 2.5.6",

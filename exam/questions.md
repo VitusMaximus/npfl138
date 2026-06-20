@@ -338,3 +338,75 @@
 
 - Illustrate that alternating SGD steps are not guaranteed to converge for
   a min-max problem. [5]
+
+#### Questions@:, Lecture 13 Questions
+- Assuming a data point $\boldsymbol x_0$ and a variance schedule
+  $\beta_1, \ldots, \beta_T$, define the forward diffusion process $q$. [5]
+
+- Assuming a variance schedule $\beta_1, \ldots, \beta_T$, prove how the forward
+  diffusion marginal $q(\boldsymbol x_t | \boldsymbol x_0)$ looks like. [10]
+
+- Write down the diffusion marginal $q(\boldsymbol x_t | \boldsymbol x_0)$ and
+  the formulas of the cosine schedule of the signal rate and the noise rate. [5]
+
+- In flow matching, correctly define the probability density path, the
+  time-dependent vector field, the flow, and write down the transport equation
+  connecting these concepts. [5]
+
+- In conditional flow matching, write down how we design the conditional
+  probability path in time 0 and in time 1, define the marginal probability
+  path, explain what the conditional vector field is, define the marginal vector
+  field, and using the transport equation prove that the marginal vector field
+  generates the marginal probability path. [10]
+
+- Write down the general flow matching objective and the general conditional
+  flow matching objective. [5]
+
+- In conditional flow matching, assuming that the conditional probability path
+  is defined as a parametric normal distribution, write down how it is defined
+  in time 0 and in time 1, how the corresponding flow looks like in time $t$,
+  and derive the formula for the conditional vector field generating such
+  a flow. [10]
+
+- Write down the definition of the optimal transport (OT) flow in time $t$, the
+  corresponding conditional probability path, and the conditional vector field
+  generating this flow. Then, write down how exactly the conditional flow
+  matching loss looks like for this optimal transport flow. [10]
+
+- Write down the sampling algorithm used in flow matching. [5]
+
+#### Questions@:, Lecture 14 Questions
+- Describe how a linear-frequency spectrogram is generated (explain window
+  length, hop length, what frequencies are represented in every window,
+  and explain windowing including the Hann window function). Assuming $f$
+  hertz corresponds to $m(f)$ mels (no need to know the exact formula),
+  how do the hertz frequencies represented by a mel spectrogram with
+  $M$ entries look like? [10]
+
+- Draw the WaveNet architecture (show the overall architecture, explain dilated
+  convolutions, write down the gated activations, describe global and local
+  conditioning). [10]
+
+- Write down the formulas for GELU, Swish, GEGLU, and SwiGLU used in the FFN
+  module of a Transformer architecture. [5]
+
+- Define the Mixture of Logistic distribution used in Parallel WaveNet,
+  including the explicit formula of computing the likelihood of the data. [5]
+
+- Describe the changes in the Student model of Parallel WaveNet that allow
+  efficient sampling (how the distribution $P(x_t)$ looks like, how $x_t$
+  is sampled from this distribution, what the prior distribution for latent
+  variable looks like, how the second iteration is computed). [10]
+
+- Write down the loss used for Student model training in Parallel WaveNet, and
+  write down the cross-entropy part also using per-time-step cross-entropies. [5]
+
+- Describe the overall architecture of the Tacotron 2 architecture, including
+  the description of the encoder, formula for the location-sensitive attention,
+  and the description of the decoder. (How exactly is one step of the decoder
+  performed? How exactly is post-net used? Why does the decoder have two outputs?)
+  What is the loss minimized during training? [10]
+
+- Sketch the FastSpeech architecture, describe what duration predictor
+  is, and how it is used during computation. What is the advantage of this
+  architecture compared to Tacotron? [5]
